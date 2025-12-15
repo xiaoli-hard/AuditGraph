@@ -1,0 +1,5 @@
+{
+  "name": "Copy of AuditGraph AI",
+  "description": "A Smart Audit System based on LangGraph & Neo4j, featuring an intelligent agent for compliance checking, risk analysis, and knowledge graph visualization.",
+  "requestFramePermissions": []
+}
