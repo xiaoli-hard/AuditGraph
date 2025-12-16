@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { COMPLIANCE_STATS, RISK_STATS, MOCK_RISKS } from '../data/constants';
 import { AlertTriangle, ShieldCheck, Database, Zap, ArrowUpRight, ArrowRight, Activity, Globe } from 'lucide-react';
+import { fetchDashboardStats, fetchRisks } from '../services/auditService';
+import { AuditStat, RiskItem } from '../types/index';
 
 const BentoCard: React.FC<{ children: React.ReactNode; className?: string; title?: string; icon?: any }> = ({ children, className = '', title, icon: Icon }) => (
   <div className={`glass-panel rounded-2xl p-6 flex flex-col relative overflow-hidden group hover:border-white/20 transition-colors ${className}`}>
@@ -39,6 +40,35 @@ const StatDisplay: React.FC<{ label: string; value: string; trend?: string; tren
 );
 
 const Dashboard: React.FC = () => {
+  const [complianceStats, setComplianceStats] = useState<AuditStat[]>([]);
+  const [riskStats, setRiskStats] = useState<AuditStat[]>([]);
+  const [recentRisks, setRecentRisks] = useState<RiskItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [stats, risks] = await Promise.all([
+          fetchDashboardStats(),
+          fetchRisks()
+        ]);
+        setComplianceStats(stats.compliance);
+        setRiskStats(stats.risk_distribution);
+        setRecentRisks(risks);
+      } catch (error) {
+        console.error("Failed to load dashboard data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return <div className="p-8 text-zinc-500">Loading Dashboard...</div>;
+  }
+
   return (
     <div className="p-6 lg:p-8 space-y-6 h-full overflow-y-auto custom-scrollbar">
       {/* Header */}
@@ -71,7 +101,7 @@ const Dashboard: React.FC = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={COMPLIANCE_STATS}
+                    data={complianceStats}
                     cx="50%"
                     cy="50%"
                     innerRadius={70}
@@ -82,7 +112,7 @@ const Dashboard: React.FC = () => {
                     startAngle={90}
                     endAngle={-270}
                   >
-                    {COMPLIANCE_STATS.map((entry, index) => (
+                    {complianceStats.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
                     ))}
                   </Pie>
@@ -120,14 +150,14 @@ const Dashboard: React.FC = () => {
            </div>
            <div className="h-24 w-full mt-auto">
              <ResponsiveContainer width="100%" height="100%">
-               <BarChart data={RISK_STATS}>
+               <BarChart data={riskStats}>
                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#71717a', fontSize: 10}} />
                  <Tooltip 
                     cursor={{fill: 'rgba(255,255,255,0.05)'}}
                     contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#fff' }}
                  />
                  <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40}>
-                   {RISK_STATS.map((entry, index) => (
+                   {riskStats.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                  </Bar>
@@ -180,7 +210,7 @@ const Dashboard: React.FC = () => {
                  </tr>
                </thead>
                <tbody className="text-xs font-mono">
-                 {MOCK_RISKS.map((risk) => (
+                 {recentRisks.map((risk) => (
                    <tr key={risk.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                      <td className="py-3 text-zinc-500">{new Date().toLocaleTimeString()}</td>
                      <td className="py-3 text-violet-400">{risk.id}</td>

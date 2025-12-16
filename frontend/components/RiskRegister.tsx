@@ -1,8 +1,36 @@
-import React from 'react';
-import { MOCK_RISKS } from '../data/constants';
-import { ShieldAlert, AlertTriangle, MoreHorizontal, Filter, Plus, ArrowUpDown, Search, SlidersHorizontal } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { fetchRisks } from '../services/auditService';
+import { RiskItem } from '../types/index';
+import { ShieldAlert, AlertTriangle, MoreHorizontal, Filter, Plus, ArrowUpDown, Search, SlidersHorizontal, Loader2 } from 'lucide-react';
 
 const RiskRegister: React.FC = () => {
+  const [risks, setRisks] = useState<RiskItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadRisks = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchRisks();
+        setRisks(data);
+      } catch (error) {
+        console.error("Failed to fetch risks", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadRisks();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-zinc-500">
+        <Loader2 className="w-8 h-8 animate-spin mb-2" />
+        <p>Loading Risks...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 space-y-6 animate-fade-in max-w-[1600px] mx-auto h-full flex flex-col">
       <div className="flex justify-between items-end">
@@ -46,7 +74,7 @@ const RiskRegister: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {MOCK_RISKS.map((risk) => (
+              {risks.map((risk) => (
                 <tr key={risk.id} className="hover:bg-white/5 transition-colors group">
                   <td className="px-6 py-4">
                     <span className="font-mono text-xs font-medium text-violet-400 bg-violet-500/10 px-2 py-1 rounded border border-violet-500/20">
