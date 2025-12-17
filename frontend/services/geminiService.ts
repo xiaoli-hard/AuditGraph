@@ -57,7 +57,7 @@ RETURN c, r
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'DouBao-1.6',
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,

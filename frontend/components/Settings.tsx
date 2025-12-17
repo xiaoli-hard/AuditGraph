@@ -4,7 +4,7 @@ import { AgentSettings } from '../types/index';
 
 const Settings: React.FC = () => {
   const [settings, setSettings] = useState<AgentSettings>({
-    modelName: 'gemini-2.5-flash',
+    modelName: 'DouBao-1.6',
     temperature: 0.7,
     maxTokens: 2048,
     retrievalTopK: 5,
@@ -57,7 +57,7 @@ const Settings: React.FC = () => {
                         onChange={handleChange}
                         className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-zinc-200 focus:border-violet-500/50 outline-none appearance-none cursor-pointer hover:bg-black/60 transition-colors"
                       >
-                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (推荐 - 低延迟)</option>
+                        <option value="DouBao-1.6">Gemini 2.5 Flash (推荐 - 低延迟)</option>
                         <option value="gemini-3-pro-preview">Gemini 3.0 Pro Preview (高推理能力)</option>
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">▼</div>

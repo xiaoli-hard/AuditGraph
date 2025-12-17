@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List
+from app.db.neo4j_client import neo4j_client
 
 router = APIRouter()
 
@@ -14,14 +15,20 @@ class RiskItem(BaseModel):
     dateIdentified: str
     owner: str
 
-MOCK_RISKS = [
-  { "id": 'R-001', "title": '管理员账号缺少 MFA', "severity": 'High', "category": 'Access Control', "status": 'Open', "description": '监测到 root 账号在未进行多因素认证的情况下登录系统。', "dateIdentified": '2024-03-01', "owner": 'IT Security' },
-  { "id": 'R-002', "title": '数据备份验证失败', "severity": 'Medium', "category": 'Business Continuity', "status": 'Open', "description": '第三季度数据库恢复测试记录缺失。', "dateIdentified": '2024-03-10', "owner": 'DevOps' },
-  { "id": 'R-003', "title": 'SSL 证书已过期', "severity": 'Low', "category": 'Encryption', "status": 'Mitigated', "description": '开发环境证书已过期，影响内部测试。', "dateIdentified": '2024-02-15', "owner": 'App Support' },
-  { "id": 'R-004', "title": '供应商评估逾期', "severity": 'Medium', "category": 'Supplier Relationships', "status": 'Open', "description": '云服务提供商 X 的年度安全审查逾期 30 天。', "dateIdentified": '2024-03-20', "owner": 'Procurement' },
-  { "id": 'R-005', "title": '弱口令策略', "severity": 'High', "category": 'Access Control', "status": 'Closed', "description": '检测到最小密码长度配置为 6 位，已更新为 12 位。', "dateIdentified": '2024-01-05', "owner": 'IT Security' },
-]
-
 @router.get("/", response_model=List[RiskItem])
 async def get_risks():
-    return MOCK_RISKS
+    """
+    获取所有风险项列表。
+    """
+    query = "MATCH (r:Risk) RETURN r"
+    results = neo4j_client.execute_query(query)
+    
+    # results 是字典列表, 例如 [{'r': {'id': 'R-001', ...}}]
+    risks = []
+    for record in results:
+        node_data = record.get("r", {})
+        # 确保所有必需字段都存在 (Pydantic 验证)
+        # 我们依赖种子数据的完整性，或者在需要时提供默认值。
+        risks.append(node_data)
+        
+    return risks

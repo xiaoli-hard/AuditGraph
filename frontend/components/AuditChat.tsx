@@ -58,29 +58,55 @@ const AuditChat: React.FC = () => {
     addLog('info', `接收指令: "${userMsg.content.substring(0, 30)}..."`);
     addLog('process', '初始化 AgentExecutor...');
     
-    // Simulating LangGraph Steps
-    setTimeout(() => addLog('info', '节点: IntentClassifier 调用中'), 600);
-    setTimeout(() => addLog('data', '意图识别: COMPLIANCE_CHECK (合规检查)'), 1200);
-    setTimeout(() => addLog('process', '生成 Cypher 查询语句...'), 1800);
-    setTimeout(() => addLog('data', 'MATCH (n:Control) WHERE n.id STARTS WITH "A.9" RETURN n'), 2400);
-    setTimeout(() => addLog('process', '执行 Neo4j 图谱检索...'), 3000);
-    setTimeout(() => addLog('success', '检索到 5 个节点, 4 条关系'), 3600);
-    
-    // API Call
-    const aiResponseText = await sendAuditMessage(userMsg.content);
-
-    setMessages((prev) => [
-      ...prev, 
-      {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: aiResponseText,
-        timestamp: new Date()
+    try {
+      // API Call
+      const result = await sendAuditMessage(userMsg.content);
+      
+      let aiResponseContent = '';
+      
+      // Handle response being either string or object
+      if (typeof result === 'string') {
+        aiResponseContent = result;
+      } else {
+        // Backend returns { response: "...", steps: [...] }
+        // auditService interface says answer, but let's handle both
+        // @ts-ignore
+        aiResponseContent = result.response || result.answer || JSON.stringify(result);
+        
+        // Render steps if available
+        if (result.steps && Array.isArray(result.steps)) {
+          result.steps.forEach((step: any) => {
+             // Map backend step status to log type
+             const type = step.status === 'completed' ? 'success' : 'process';
+             addLog(type, `[${step.node}] ${step.detail}`);
+          });
+        }
       }
-    ]);
 
-    setIsLoading(false);
-    addLog('success', '响应生成完毕');
+      setMessages((prev) => [
+        ...prev, 
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: aiResponseContent,
+          timestamp: new Date()
+        }
+      ]);
+      addLog('success', '响应生成完毕');
+    } catch (error) {
+      addLog('data', `Error: ${error}`);
+      setMessages((prev) => [
+        ...prev, 
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: "抱歉，处理您的请求时遇到错误。",
+          timestamp: new Date()
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -172,7 +198,7 @@ const AuditChat: React.FC = () => {
         
         {/* Agent Config Summary */}
         <div className="p-3 bg-zinc-950 border-t border-white/5 text-[10px] text-zinc-500 space-y-1">
-           <div className="flex justify-between"><span>模型:</span> <span className="text-zinc-300">gemini-2.5-flash</span></div>
+           <div className="flex justify-between"><span>模型:</span> <span className="text-zinc-300">DouBao-1.6</span></div>
            <div className="flex justify-between"><span>温度:</span> <span className="text-zinc-300">0.2</span></div>
            <div className="flex justify-between"><span>GRAPH_RAG:</span> <span className="text-emerald-500">已启用</span></div>
         </div>

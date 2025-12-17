@@ -12,9 +12,9 @@ AuditGraph 是一个智能审计助手，利用知识图谱 (Neo4j) 和大型语
 
 ## 🛠 技术栈
 
-- **前端**：React 18, TypeScript, Vite, Tailwind CSS, Recharts, Lucide React
+- **前端**：React 19, TypeScript, Vite, Tailwind CSS, Recharts, Lucide React
 - **后端**：Python 3.10+, FastAPI
-- **AI & 代理工作流**：LangGraph, LangChain
+- **AI & 代理工作流**：LangGraph, LangChain (支持 OpenAI / Google Gemini / 豆包)
 - **数据库**：Neo4j (图数据库)
 
 ## 📂 项目结构
@@ -27,8 +27,9 @@ AuditGraph 是一个智能审计助手，利用知识图谱 (Neo4j) 和大型语
 │   │   ├── core/           # 配置与安全设置
 │   │   ├── db/             # 数据库连接 (Neo4j)
 │   │   ├── langgraph_agent/# LangGraph 代理工作流与逻辑
+│   │   ├── scripts/        # 实用脚本 (如数据库填充)
 │   │   └── main.py         # 应用入口点
-│   ├── .env.example        # 环境变量模板
+│   ├── .env.example        # 环境变量模板 (需创建 .env)
 │   └── requirements.txt    # Python 依赖
 ├── frontend/               # 前端源代码
 │   ├── components/         # React 组件
@@ -47,6 +48,7 @@ AuditGraph 是一个智能审计助手，利用知识图谱 (Neo4j) 和大型语
 - **Node.js** (v18 或更高版本)
 - **Python** (v3.10 或更高版本)
 - **Neo4j 数据库** (Neo4j Desktop 或 AuraDB)
+- **API 密钥** (OpenAI, Google Gemini, 或 豆包/火山引擎)
 
 ### 1. 后端设置
 
@@ -70,14 +72,36 @@ AuditGraph 是一个智能审计助手，利用知识图谱 (Neo4j) 和大型语
    ```
 
 4. 配置环境变量：
-   - 在 `backend` 目录下创建一个 `.env` 文件（复制 `.env.example`）。
+   - 在 `backend` 目录下创建一个 `.env` 文件。
    - 填入你的 Neo4j 凭据和 LLM API 密钥。
 
-   ```bash
-   cp .env.example .env
+   示例 `.env` 内容：
+   ```ini
+   # Neo4j 设置
+   NEO4J_URI=bolt://localhost:7687
+   NEO4J_USERNAME=neo4j
+   NEO4J_PASSWORD=your_password
+
+   # LLM 设置 (选择一个配置)
+   # Google Gemini
+   GOOGLE_API_KEY=your_google_api_key
+   
+   # OpenAI
+   OPENAI_API_KEY=your_openai_api_key
+
+   # 豆包 (火山引擎)
+   ARK_API_KEY=your_ark_api_key
+   DOUBAO_API_KEY=your_doubao_api_key
+   DOUBAO_MODEL=doubao-seed-1-6-250615
    ```
 
-5. 启动服务器：
+5. 填充数据库 (可选)：
+   初始化 Neo4j 数据库并写入测试数据：
+   ```bash
+   python app/scripts/seed_db.py
+   ```
+
+6. 启动服务器：
    ```bash
    uvicorn app.main:app --reload
    ```
@@ -95,39 +119,18 @@ AuditGraph 是一个智能审计助手，利用知识图谱 (Neo4j) 和大型语
    npm install
    ```
 
-3. 启动开发服务器：
+3. 配置数据源 (可选)：
+   默认情况下，前端会尝试连接后端 API。如果你想使用本地模拟数据运行前端（无需后端），请修改 `frontend/config/index.ts`：
+   ```typescript
+   export const USE_MOCK_DATA = true; // 设置为 true 启用模拟数据
+   ```
+
+4. 启动开发服务器：
    ```bash
    npm run dev
    ```
-   应用程序将在 `http://localhost:5173` 上可用。
+   应用通常会在 `http://localhost:5173` 运行。
 
-## ⚙️ 配置指南
+## 📝 许可证
 
-### 后端配置 (`backend/.env`)
-
-确保在你的后端 `.env` 文件中设置了以下变量：
-
-```env
-# 数据库配置
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USERNAME=neo4j
-NEO4J_PASSWORD=your_password
-
-# AI 服务密钥
-OPENAI_API_KEY=sk-...
-GOOGLE_API_KEY=...
-```
-
-### 前端配置
-
-前端配置位于 `frontend/config/index.ts`。
-- `USE_MOCK_DATA`: 设置为 `false` 以启用后端集成。
-- `API_BASE_URL`: 本地开发默认为 `http://localhost:8000`。
-
-## 🤝 贡献指南
-
-1. Fork 本仓库
-2. 创建你的特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交你的更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启一个 Pull Request
+MIT

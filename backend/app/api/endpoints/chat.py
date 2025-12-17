@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
+from app.langgraph_agent.graph import run_agent
+import traceback
 
 router = APIRouter()
 
@@ -13,13 +15,23 @@ class ChatResponse(BaseModel):
 
 @router.post("/", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    # In a real scenario, this would call the LangGraph agent
-    # For now, we return a simulated response from the backend
-    return {
-        "response": f"Backend received: {request.message}. (This is a response from the Python backend)",
-        "steps": [
-            {"node": "Input", "status": "completed", "detail": "Received user message"},
-            {"node": "Process", "status": "completed", "detail": "Analyzing intent..."},
-            {"node": "Output", "status": "completed", "detail": "Generated response"}
-        ]
-    }
+    """
+    聊天 API 端点。
+    接收用户的消息，调用 LangGraph 智能体进行处理，并返回 AI 的回答及执行步骤。
+    """
+    try:
+        # 调用 LangGraph Agent 处理消息
+        result = await run_agent(request.message)
+        
+        return {
+            "response": result["response"],
+            "steps": [
+                {"node": "Agent", "status": "completed", "detail": "LangGraph 处理完成"},
+                # 如果 Agent 状态中捕获了详细步骤，可以在这里扩展
+            ]
+        }
+    except Exception as e:
+        # 将完整堆栈跟踪记录到控制台以便调试
+        print(f"❌ 聊天端点错误: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))

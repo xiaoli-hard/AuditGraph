@@ -4,25 +4,32 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    # API Settings
+    # API 设置
     API_V1_STR: str = "/api"
     PROJECT_NAME: str = "AuditGraph Backend"
     
-    # Neo4j Settings
+    # Neo4j 设置
     NEO4J_URI: str = "bolt://localhost:7687"
     NEO4J_USERNAME: str = "neo4j"
     NEO4J_PASSWORD: str = "password"
     
-    # LLM Settings (Google Gemini / OpenAI)
+    # LLM 设置 (Google Gemini / OpenAI / Doubao)
     GOOGLE_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
     
-    # RAG Settings
+    # 豆包 (火山引擎) 设置
+    ARK_API_KEY: str = ""
+    DOUBAO_API_KEY: str = ""
+    DOUBAO_MODEL: str = "doubao-seed-1-6-250615"
+    DOUBAO_BASE_URL: str = "https://ark.cn-beijing.volces.com/api/v3"
+    
+    # RAG 设置
     EMBEDDING_MODEL: str = "models/embedding-001" 
     
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"
 
 @lru_cache()
 def get_settings():
