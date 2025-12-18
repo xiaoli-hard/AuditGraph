@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Terminal, Sparkles, ChevronRight, Play, Cpu, AlertCircle, Hash, Search, Activity } from 'lucide-react';
 import { Message } from '../types/index';
 import { sendAuditMessage } from '../services/auditService';
-import { USE_MOCK_DATA } from '../config/index';
 
 interface LogLine {
   id: string;
@@ -16,7 +15,7 @@ const AuditChat: React.FC = () => {
     {
       id: 'init',
       role: 'assistant',
-      content: `系统就绪。\n运行环境: ${USE_MOCK_DATA ? '模拟模式' : '生产模式'}\nNeo4j 数据库: 已连接\n向量知识库: 在线\n等待指令中...`,
+      content: `系统就绪。\n运行环境: 生产模式\nNeo4j 数据库: 已连接\n向量知识库: 在线\n等待指令中...`,
       timestamp: new Date(),
     },
   ]);

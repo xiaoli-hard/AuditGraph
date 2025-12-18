@@ -43,6 +43,7 @@ const Dashboard: React.FC = () => {
   const [complianceStats, setComplianceStats] = useState<AuditStat[]>([]);
   const [riskStats, setRiskStats] = useState<AuditStat[]>([]);
   const [recentRisks, setRecentRisks] = useState<RiskItem[]>([]);
+  const [summary, setSummary] = useState<{ total_nodes: number; total_documents: number }>({ total_nodes: 0, total_documents: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,6 +56,7 @@ const Dashboard: React.FC = () => {
         ]);
         setComplianceStats(stats.compliance);
         setRiskStats(stats.risk_distribution);
+        setSummary(stats.summary);
         setRecentRisks(risks);
       } catch (error) {
         console.error("Failed to load dashboard data", error);
@@ -64,6 +66,15 @@ const Dashboard: React.FC = () => {
     };
     loadData();
   }, []);
+
+  // Derived calculations
+  const totalComplianceCount = complianceStats.reduce((acc, curr) => acc + curr.value, 0);
+  const closedCount = complianceStats.find(s => s.name === '已合规')?.value || 0;
+  const openCount = complianceStats.find(s => s.name === '不合规')?.value || 0;
+  const complianceRate = totalComplianceCount > 0 ? Math.round((closedCount / totalComplianceCount) * 100) : 0;
+  
+  const highRiskCount = riskStats.find(r => r.name === '高危')?.value || 0;
+  const mitigatedCount = complianceStats.find(s => s.name === '待审核')?.value || 0;
 
   if (loading) {
     return <div className="p-8 text-zinc-500">Loading Dashboard...</div>;
@@ -119,24 +130,24 @@ const Dashboard: React.FC = () => {
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute flex flex-col items-center">
-                 <span className="text-4xl font-bold text-white">78%</span>
+                 <span className="text-4xl font-bold text-white">{complianceRate}%</span>
                  <span className="text-xs text-zinc-500 uppercase tracking-widest mt-1">就绪度</span>
               </div>
            </div>
            <div className="absolute bottom-6 left-6 right-6">
               <div className="flex justify-between text-xs mb-2">
                  <span className="text-emerald-500">已合规</span>
-                 <span className="text-white">65%</span>
+                 <span className="text-white">{totalComplianceCount > 0 ? Math.round((closedCount / totalComplianceCount) * 100) : 0}%</span>
               </div>
               <div className="w-full bg-white/10 h-1 rounded-full mb-4">
-                 <div className="bg-emerald-500 h-1 rounded-full" style={{width: '65%'}}></div>
+                 <div className="bg-emerald-500 h-1 rounded-full" style={{width: `${totalComplianceCount > 0 ? (closedCount / totalComplianceCount) * 100 : 0}%`}}></div>
               </div>
               <div className="flex justify-between text-xs mb-2">
                  <span className="text-rose-500">不合规</span>
-                 <span className="text-white">15%</span>
+                 <span className="text-white">{totalComplianceCount > 0 ? Math.round((openCount / totalComplianceCount) * 100) : 0}%</span>
               </div>
                <div className="w-full bg-white/10 h-1 rounded-full">
-                 <div className="bg-rose-500 h-1 rounded-full" style={{width: '15%'}}></div>
+                 <div className="bg-rose-500 h-1 rounded-full" style={{width: `${totalComplianceCount > 0 ? (openCount / totalComplianceCount) * 100 : 0}%`}}></div>
               </div>
            </div>
         </BentoCard>
@@ -144,8 +155,8 @@ const Dashboard: React.FC = () => {
         {/* Risk Metrics - Wide */}
         <BentoCard className="lg:col-span-2" title="风险分析" icon={AlertTriangle}>
            <div className="flex gap-8 mb-6">
-              <StatDisplay label="高危风险" value="12" trend="4" trendUp={false} color="rose" />
-              <StatDisplay label="已缓解" value="84" trend="12" trendUp={true} color="emerald" />
+              <StatDisplay label="高危风险" value={highRiskCount.toString()} trend="-" trendUp={false} color="rose" />
+              <StatDisplay label="待审核" value={mitigatedCount.toString()} trend="-" trendUp={true} color="emerald" />
               <StatDisplay label="风险速率" value="低" color="blue" />
            </div>
            <div className="h-24 w-full mt-auto">
@@ -170,7 +181,7 @@ const Dashboard: React.FC = () => {
         <BentoCard title="知识图谱" icon={Globe}>
            <div className="flex items-end justify-between">
               <div>
-                 <div className="text-3xl font-bold text-white">4,281</div>
+                 <div className="text-3xl font-bold text-white">{summary.total_nodes.toLocaleString()}</div>
                  <div className="text-xs text-zinc-500 mt-1">关联节点</div>
               </div>
               <Activity className="text-violet-500 mb-2" />
@@ -185,8 +196,8 @@ const Dashboard: React.FC = () => {
         <BentoCard title="向量索引" icon={Database}>
             <div className="flex items-end justify-between">
               <div>
-                 <div className="text-3xl font-bold text-white">1.2k</div>
-                 <div className="text-xs text-zinc-500 mt-1">Embedding 向量数</div>
+                 <div className="text-3xl font-bold text-white">{summary.total_documents.toLocaleString()}</div>
+                 <div className="text-xs text-zinc-500 mt-1">文档数量</div>
               </div>
               <Zap className="text-amber-500 mb-2" />
            </div>
@@ -212,7 +223,7 @@ const Dashboard: React.FC = () => {
                <tbody className="text-xs font-mono">
                  {recentRisks.map((risk) => (
                    <tr key={risk.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                     <td className="py-3 text-zinc-500">{new Date().toLocaleTimeString()}</td>
+                     <td className="py-3 text-zinc-500">{new Date(risk.dateIdentified || Date.now()).toLocaleTimeString()}</td>
                      <td className="py-3 text-violet-400">{risk.id}</td>
                      <td className="py-3 text-zinc-300 font-sans">{risk.title}</td>
                      <td className="py-3">

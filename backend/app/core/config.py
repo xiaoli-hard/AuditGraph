@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     # RAG 设置
     EMBEDDING_MODEL: str = "models/embedding-001" 
     
+    # Auth Settings
+    SECRET_KEY: str = "YOUR_SUPER_SECRET_KEY_HERE_CHANGE_IN_PRODUCTION"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30 
+    
     class Config:
         env_file = ".env"
         case_sensitive = True

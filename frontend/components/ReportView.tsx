@@ -1,8 +1,19 @@
-import React from 'react';
-import { MOCK_REPORTS } from '../data/constants';
+import React, { useState, useEffect } from 'react';
+import { fetchReports } from '../services/auditService';
+import { AuditReport } from '../types';
 import { FileText, Download, Printer, Plus, CheckCircle2, Clock, FileCheck } from 'lucide-react';
 
 const ReportView: React.FC = () => {
+  const [reports, setReports] = useState<AuditReport[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetchReports();
+      setReports(data);
+    };
+    loadData();
+  }, []);
+
   return (
     <div className="p-6 lg:p-10 space-y-8 animate-fade-in max-w-[1920px] mx-auto w-full">
       <div className="flex justify-between items-end">
@@ -17,7 +28,7 @@ const ReportView: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {MOCK_REPORTS.map((report) => (
+        {reports.map((report) => (
           <div key={report.id} className="glass-panel rounded-xl p-6 flex flex-col border border-white/5 hover:border-violet-500/30 transition-all group relative overflow-hidden">
              {/* Top glow */}
              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:via-violet-500/50 transition-all"></div>

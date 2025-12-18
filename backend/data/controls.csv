@@ -1,0 +1,13 @@
+id,code,title,description,type,group_id
+ISO27001,ISO27001,ISO 27001 Standard,Information Security Management System,Standard,1
+ISO-A.5,A.5,信息安全策略,管理层对信息安全的指导。,ControlDomain,1
+A.5.1.1,A.5.1.1,信息安全策略文档,应定义一套信息安全策略，经管理层批准，发布并传达给员工。,Control,2
+A.5.1.2,A.5.1.2,策略的审查,应按计划的时间间隔对信息安全策略进行审查。,Control,2
+ISO-A.9,A.9,访问控制,限制对信息和信息处理设施的访问。,ControlDomain,1
+A.9.1.1,A.9.1.1,访问控制策略,应基于业务和信息安全要求，建立、记录并审查访问控制策略。,Control,2
+A.9.2.1,A.9.2.1,用户注册和注销,应实施正式的用户注册和注销流程。,Control,2
+A.9.4.1,A.9.4.1,访问限制,应限制对信息和应用系统功能的访问。,Control,2
+ISO-A.12,A.12,操作安全,确保信息处理设施的正确和安全运行。,ControlDomain,1
+A.12.3.1,A.12.3.1,数据备份,应定期制作信息、软件和系统映像的备份副本，并进行测试。,Control,2
+DOC-001,DOC-001,密码策略.pdf,企业密码安全管理规范文档,Document,3
+LOG-005,LOG-005,服务器日志,关键服务器系统访问日志,Evidence,3

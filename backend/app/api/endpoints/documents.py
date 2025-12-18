@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+from app.db.neo4j_client import neo4j_client
 
 router = APIRouter()
 
@@ -8,17 +9,18 @@ class Document(BaseModel):
     id: str
     name: str
     type: str
-    size: str
-    uploadDate: str
-    status: str
-
-MOCK_DOCUMENTS = [
-  { "id": 'D-001', "name": 'ISO27001_信息安全策略_v2.pdf', "type": 'PDF', "size": '2.4 MB', "uploadDate": '2024-03-15', "status": 'Indexed' },
-  { "id": 'D-002', "name": '2023_内部审计报告.docx', "type": 'DOCX', "size": '1.1 MB', "uploadDate": '2024-02-10', "status": 'Indexed' },
-  { "id": 'D-003', "name": '云基础设施配置清单.json', "type": 'JSON', "size": '0.5 MB', "uploadDate": '2024-03-18', "status": 'Processing' },
-  { "id": 'D-004', "name": '员工访问日志_Q1.csv', "type": 'CSV', "size": '15.2 MB', "uploadDate": '2024-03-25', "status": 'Indexed' },
-]
+    size: Optional[str] = "Unknown"
+    uploadDate: Optional[str] = None
+    status: Optional[str] = "Indexed"
 
 @router.get("/", response_model=List[Document])
 async def get_documents():
-    return MOCK_DOCUMENTS
+    query = """
+    MATCH (d:Document)
+    RETURN d.id as id, d.name as name, d.type as type, d.size as size, d.uploadDate as uploadDate, d.status as status
+    """
+    try:
+        results = neo4j_client.execute_query(query)
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

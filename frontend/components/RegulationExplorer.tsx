@@ -1,10 +1,39 @@
-import React, { useState } from 'react';
-import { MOCK_REGULATIONS } from '../data/constants';
-import { Book, ChevronRight, ChevronDown, ExternalLink, ShieldCheck, FileText, AlertTriangle, Search, ChevronLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { fetchRegulations, fetchRegulationDetails } from '../services/auditService';
+import { RegulationClause } from '../types';
+import { Book, ChevronRight, ChevronDown, ExternalLink, Search, ShieldCheck, AlertTriangle, FileText, Loader2 } from 'lucide-react';
 
 const RegulationExplorer: React.FC = () => {
+  const [regulations, setRegulations] = useState<RegulationClause[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({'ISO-A.5': true, 'ISO-A.9': true});
   const [selectedId, setSelectedId] = useState<string>('A.9.1.1');
+  const [details, setDetails] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetchRegulations();
+      setRegulations(data);
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    const loadDetails = async () => {
+      if (!selectedId) return;
+      setLoadingDetails(true);
+      try {
+        const data = await fetchRegulationDetails(selectedId);
+        setDetails(data);
+      } catch (e) {
+        console.error("Failed to load details", e);
+        setDetails(null);
+      } finally {
+        setLoadingDetails(false);
+      }
+    };
+    loadDetails();
+  }, [selectedId]);
 
   const toggleExpand = (id: string) => {
     setExpanded(prev => ({...prev, [id]: !prev[id]}));
@@ -36,7 +65,7 @@ const RegulationExplorer: React.FC = () => {
              </h3>
           </div>
           <div className="overflow-y-auto flex-1 p-2 custom-scrollbar space-y-1">
-            {MOCK_REGULATIONS.map((section) => (
+            {regulations.map((section) => (
               <div key={section.id} className="select-none">
                 <button 
                   onClick={() => toggleExpand(section.id)}
@@ -82,78 +111,101 @@ const RegulationExplorer: React.FC = () => {
           {/* Neon decorative line */}
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent"></div>
 
-          <div className="flex items-start justify-between border-b border-white/5 pb-6 mb-6">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <span className="px-3 py-1 bg-violet-500/10 text-violet-400 border border-violet-500/20 rounded-full text-xs font-mono font-bold shadow-[0_0_10px_rgba(139,92,246,0.2)]">A.9.1.1</span>
-                <span className="text-xs text-zinc-500 font-mono uppercase tracking-wider">控制域</span>
+          {loadingDetails ? (
+            <div className="flex items-center justify-center h-full text-zinc-500 gap-2">
+              <Loader2 className="animate-spin" size={24} />
+              加载中...
+            </div>
+          ) : !details ? (
+             <div className="flex items-center justify-center h-full text-zinc-500">
+               请选择一个控制项查看详情
+             </div>
+          ) : (
+            <>
+              <div className="flex items-start justify-between border-b border-white/5 pb-6 mb-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="px-3 py-1 bg-violet-500/10 text-violet-400 border border-violet-500/20 rounded-full text-xs font-mono font-bold shadow-[0_0_10px_rgba(139,92,246,0.2)]">
+                        {details.control.code}
+                    </span>
+                    <span className="text-xs text-zinc-500 font-mono uppercase tracking-wider">控制域</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-2">{details.control.title}</h3>
+                  <p className="text-zinc-400 text-lg leading-relaxed font-light">
+                    {details.control.description}
+                  </p>
+                </div>
+                <button className="text-zinc-500 hover:text-white transition-colors p-2 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10">
+                  <ExternalLink size={20} />
+                </button>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">访问控制策略 (Access Control Policy)</h3>
-              <p className="text-zinc-400 text-lg leading-relaxed font-light">
-                应基于业务和信息安全要求，建立、记录并审查访问控制策略。
-              </p>
-            </div>
-            <button className="text-zinc-500 hover:text-white transition-colors p-2 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10">
-              <ExternalLink size={20} />
-            </button>
-          </div>
 
-          <div className="space-y-8">
-            {/* Implementation Box */}
-            <div className="bg-emerald-900/10 p-5 rounded-xl border border-emerald-500/20 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-              <h4 className="font-bold text-emerald-400 mb-2 flex items-center gap-2 text-sm uppercase tracking-wider">
-                <ShieldCheck size={16} />
-                实施指南
-              </h4>
-              <p className="text-emerald-100/70 text-sm leading-relaxed">
-                资产所有者应根据其资产相关的安全风险水平，确定具体的访问控制规则、访问权限和限制。
-              </p>
-            </div>
+              <div className="space-y-8">
+                {/* Implementation Box */}
+                <div className="bg-emerald-900/10 p-5 rounded-xl border border-emerald-500/20 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+                  <h4 className="font-bold text-emerald-400 mb-2 flex items-center gap-2 text-sm uppercase tracking-wider">
+                    <ShieldCheck size={16} />
+                    实施指南
+                  </h4>
+                  <p className="text-emerald-100/70 text-sm leading-relaxed">
+                    资产所有者应根据其资产相关的安全风险水平，确定具体的访问控制规则、访问权限和限制。
+                    {/* Note: This guide text is still static as it's not in the graph yet, but acceptable for now */}
+                  </p>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Evidence Column */}
-                <div>
-                    <h4 className="font-bold text-zinc-300 mb-4 flex items-center gap-2 text-xs uppercase tracking-wider">
-                        <FileText size={14} className="text-blue-400" /> 关联证据
-                    </h4>
-                    <div className="space-y-3">
-                        <div className="bg-zinc-900/50 border border-white/5 rounded-lg p-3 hover:border-blue-500/50 cursor-pointer transition-colors group">
-                            <div className="text-sm font-medium text-zinc-300 group-hover:text-blue-400 transition-colors">Access_Policy_v3.pdf</div>
-                            <div className="flex justify-between items-center mt-2">
-                                <div className="text-[10px] text-zinc-600 font-mono">ID: DOC-001</div>
-                                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20">已验证</span>
-                            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Evidence Column */}
+                    <div>
+                        <h4 className="font-bold text-zinc-300 mb-4 flex items-center gap-2 text-xs uppercase tracking-wider">
+                            <FileText size={14} className="text-blue-400" /> 关联证据
+                        </h4>
+                        <div className="space-y-3">
+                            {details.evidence.length === 0 ? (
+                                <div className="text-zinc-500 text-sm italic">暂无关联证据</div>
+                            ) : (
+                                details.evidence.map((doc: any) => (
+                                    <div key={doc.id} className="bg-zinc-900/50 border border-white/5 rounded-lg p-3 hover:border-blue-500/50 cursor-pointer transition-colors group">
+                                        <div className="text-sm font-medium text-zinc-300 group-hover:text-blue-400 transition-colors">{doc.name}</div>
+                                        <div className="flex justify-between items-center mt-2">
+                                            <div className="text-[10px] text-zinc-600 font-mono">ID: {doc.id}</div>
+                                            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20">{doc.status || '已验证'}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
-                        <div className="bg-zinc-900/50 border border-white/5 rounded-lg p-3 hover:border-blue-500/50 cursor-pointer transition-colors group">
-                            <div className="text-sm font-medium text-zinc-300 group-hover:text-blue-400 transition-colors">Jira_Access_Reviews.csv</div>
-                            <div className="flex justify-between items-center mt-2">
-                                <div className="text-[10px] text-zinc-600 font-mono">ID: DOC-084</div>
-                                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20">已验证</span>
-                            </div>
+                    </div>
+
+                    {/* Risks Column */}
+                    <div>
+                        <h4 className="font-bold text-zinc-300 mb-4 flex items-center gap-2 text-xs uppercase tracking-wider">
+                            <AlertTriangle size={14} className="text-rose-400" /> 关联风险
+                        </h4>
+                        <div className="space-y-3">
+                            {details.risks.length === 0 ? (
+                                <div className="text-zinc-500 text-sm italic">暂无关联风险</div>
+                            ) : (
+                                details.risks.map((risk: any) => (
+                                    <div key={risk.id} className="bg-rose-900/10 border border-rose-500/20 rounded-lg p-3 flex flex-col gap-2">
+                                        <div className="flex justify-between items-start">
+                                            <span className="text-xs font-mono text-rose-300/70">{risk.id}</span>
+                                            <span className="text-[10px] font-bold bg-rose-500 text-white px-1.5 rounded shadow-[0_0_8px_rgba(244,63,94,0.4)]">{risk.severity}</span>
+                                        </div>
+                                        <div className="text-sm font-medium text-rose-200">{risk.title}</div>
+                                        <div className="w-full bg-rose-950/50 h-1 rounded-full overflow-hidden mt-1">
+                                            <div className="bg-rose-500 h-full w-[80%]"></div>
+                                        </div>
+                                        <div className="text-[10px] text-rose-300/50 text-right">状态: {risk.status}</div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
-
-                {/* Risks Column */}
-                <div>
-                    <h4 className="font-bold text-zinc-300 mb-4 flex items-center gap-2 text-xs uppercase tracking-wider">
-                        <AlertTriangle size={14} className="text-rose-400" /> 关联风险
-                    </h4>
-                    <div className="bg-rose-900/10 border border-rose-500/20 rounded-lg p-3 flex flex-col gap-2">
-                        <div className="flex justify-between items-start">
-                            <span className="text-xs font-mono text-rose-300/70">R-001</span>
-                            <span className="text-[10px] font-bold bg-rose-500 text-white px-1.5 rounded shadow-[0_0_8px_rgba(244,63,94,0.4)]">高危</span>
-                        </div>
-                        <div className="text-sm font-medium text-rose-200">管理员账号缺少 MFA</div>
-                        <div className="w-full bg-rose-950/50 h-1 rounded-full overflow-hidden mt-1">
-                            <div className="bg-rose-500 h-full w-[80%]"></div>
-                        </div>
-                        <div className="text-[10px] text-rose-300/50 text-right">发生概率: 80%</div>
-                    </div>
-                </div>
-            </div>
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -1,0 +1,8 @@
+id,title,severity,category,status,description,owner,dateIdentified
+R-001,管理员账号缺少 MFA,High,Access Control,Open,监测到 root 账号在未进行多因素认证的情况下登录系统。,IT Security,2024-03-01
+R-002,数据备份验证失败,Medium,Business Continuity,Open,第三季度数据库恢复测试记录缺失。,DevOps,2024-03-10
+R-003,SSL 证书已过期,Low,Encryption,Mitigated,开发环境证书已过期，影响内部测试。,App Support,2024-02-15
+R-004,供应商评估逾期,Medium,Supplier Relationships,Open,云服务提供商 X 的年度安全审查逾期 30 天。,Procurement,2024-03-20
+R-005,弱口令策略,High,Access Control,Closed,检测到最小密码长度配置为 6 位，已更新为 12 位。,IT Security,2024-01-05
+R-006,未授权的外部访问,High,Network Security,Open,防火墙日志显示来自未知IP的异常流量。,Network Ops,2024-03-28
+R-007,敏感数据未加密存储,Critical,Data Privacy,Open,客户PII数据在开发数据库中明文存储。,Data Privacy Officer,2024-04-01

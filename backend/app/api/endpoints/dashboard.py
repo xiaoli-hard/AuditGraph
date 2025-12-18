@@ -69,7 +69,20 @@ async def get_dashboard_stats():
                 "color": status_map[status]["color"]
             })
 
+    # 3. Graph Stats
+    query_nodes = "MATCH (n) RETURN count(n) as count"
+    nodes_count = neo4j_client.execute_query(query_nodes)[0]['count']
+    
+    # 4. Document Stats (Assuming 'Document' label)
+    query_docs = "MATCH (d:Document) RETURN count(d) as count"
+    docs_count = neo4j_client.execute_query(query_docs)[0]['count']
+
     return {
         "compliance": compliance_stats,
-        "risk_distribution": risk_stats
+        "risk_distribution": risk_stats,
+        "summary": {
+            "total_nodes": nodes_count,
+            "total_documents": docs_count,
+            # Calculated fields can be done here or frontend, let's pass raw counts
+        }
     }
