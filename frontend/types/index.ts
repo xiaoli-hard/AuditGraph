@@ -11,11 +11,13 @@ export interface RiskItem {
   id: string;
   title: string;
   severity: 'High' | 'Medium' | 'Low';
-  category: string;
-  status: 'Open' | 'Mitigated' | 'Closed';
+  category?: string;
+  status: 'Open' | 'Mitigated' | 'Closed' | 'Remediation In Progress' | 'False Positive';
   description: string;
   dateIdentified: string;
-  owner: string;
+  owner?: string;
+  remediation_suggestion?: string;
+  remediation_source?: string;
 }
 
 // Regulation / Standard Types

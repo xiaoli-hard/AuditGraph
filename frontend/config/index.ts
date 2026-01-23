@@ -8,6 +8,9 @@ export const ENDPOINTS = {
   DOCUMENTS: `${API_BASE_URL}/documents`, // 文档列表
   RISKS: `${API_BASE_URL}/risks`,         // 风险列表
   DASHBOARD_STATS: `${API_BASE_URL}/dashboard/stats`, // 仪表盘统计
+  EXPORT_LOGS: `${API_BASE_URL}/dashboard/export-logs`, // 导出日志
+  START_AUDIT: `${API_BASE_URL}/dashboard/start-audit`, // 启动审计
+  AUDIT_STATUS: `${API_BASE_URL}/dashboard/audit-status`, // 审计状态
   REGULATIONS: `${API_BASE_URL}/regulations`, // 法规树
   REPORTS: `${API_BASE_URL}/reports`, // 审计报告
 };

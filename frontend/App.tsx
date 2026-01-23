@@ -8,6 +8,7 @@ import RegulationExplorer from './components/RegulationExplorer';
 import ReportView from './components/ReportView';
 import DocumentsView from './components/DocumentsView';
 import Settings from './components/Settings';
+import { ToastProvider } from './components/Toast';
 import { Activity } from 'lucide-react';
 
 const Placeholder = ({ title }: { title: string }) => (
@@ -48,21 +49,23 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#050506] text-zinc-200 font-sans overflow-hidden bg-grid">
-      {/* Top Navigation Bar */}
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-hidden relative z-10">
-        {renderContent()}
-      </main>
+    <ToastProvider>
+      <div className="flex flex-col h-screen bg-[#050506] text-zinc-200 font-sans overflow-hidden bg-grid">
+        {/* Top Navigation Bar */}
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-hidden relative z-10">
+          {renderContent()}
+        </main>
 
-      {/* Background Ambience */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-         <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-violet-900/5 blur-[100px] rounded-full mix-blend-screen"></div>
-         <div className="absolute bottom-[-10%] right-[10%] w-[40%] h-[40%] bg-indigo-900/5 blur-[100px] rounded-full mix-blend-screen"></div>
+        {/* Background Ambience */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+           <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-violet-900/5 blur-[100px] rounded-full mix-blend-screen"></div>
+           <div className="absolute bottom-[-10%] right-[10%] w-[40%] h-[40%] bg-indigo-900/5 blur-[100px] rounded-full mix-blend-screen"></div>
+        </div>
       </div>
-    </div>
+    </ToastProvider>
   );
 };
 

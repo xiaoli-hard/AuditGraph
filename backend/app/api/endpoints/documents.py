@@ -7,8 +7,8 @@ router = APIRouter()
 
 class Document(BaseModel):
     id: str
-    name: str
-    type: str
+    name: Optional[str] = None
+    type: Optional[str] = None
     size: Optional[str] = "Unknown"
     uploadDate: Optional[str] = None
     status: Optional[str] = "Indexed"

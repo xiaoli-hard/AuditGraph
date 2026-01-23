@@ -109,20 +109,25 @@ const RiskRegister: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-sm text-zinc-400 flex items-center gap-2">
                      <div className="w-5 h-5 rounded bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-300">
-                        {risk.owner.charAt(0)}
+                        {(risk.owner || '?').charAt(0)}
                      </div>
                      {risk.owner === 'IT Security' ? '信息安全部' : 
                       risk.owner === 'DevOps' ? '运维开发' :
                       risk.owner === 'App Support' ? '应用支持' :
-                      risk.owner === 'Procurement' ? '采购部' : risk.owner}
+                      risk.owner === 'Procurement' ? '采购部' : (risk.owner || '未分配')}
                   </td>
                   <td className="px-6 py-4">
                      <span className={`text-xs font-bold uppercase tracking-wider ${
                         risk.status === 'Open' ? 'text-rose-400' : 
                         risk.status === 'Mitigated' ? 'text-blue-400' :
+                        risk.status === 'Remediation In Progress' ? 'text-violet-400' :
+                        risk.status === 'False Positive' ? 'text-zinc-500' :
                         'text-emerald-400'
                      }`}>
-                       {risk.status === 'Open' ? '未解决' : risk.status === 'Mitigated' ? '已缓解' : '已关闭'}
+                       {risk.status === 'Remediation In Progress' ? '修复中' : 
+                        risk.status === 'False Positive' ? '误报' : 
+                        risk.status === 'Open' ? '未解决' :
+                        risk.status === 'Mitigated' ? '已缓解' : '已关闭'}
                      </span>
                   </td>
                   <td className="px-6 py-4 text-right">

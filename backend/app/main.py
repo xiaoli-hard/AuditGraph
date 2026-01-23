@@ -26,6 +26,8 @@ app.include_router(documents.router, prefix="/api/documents", tags=["Documents"]
 app.include_router(graph.router, prefix="/api/graph", tags=["Graph"])
 app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
+app.include_router(regulations.router, prefix="/api/regulations", tags=["Regulations"])
+app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
 
 @app.get("/")
 async def root():

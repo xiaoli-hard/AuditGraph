@@ -32,6 +32,6 @@ async def chat(request: ChatRequest):
         }
     except Exception as e:
         # 将完整堆栈跟踪记录到控制台以便调试
-        print(f"❌ 聊天端点错误: {e}")
+        print(f"聊天端点错误: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
