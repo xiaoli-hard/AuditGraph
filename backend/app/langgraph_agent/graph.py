@@ -85,13 +85,38 @@ def query_graph(query: str) -> str:
 
 tools = [query_graph]
 
-# 2. 设置 LLM
-llm = ChatOpenAI(
-    base_url=settings.DOUBAO_BASE_URL,
-    api_key=settings.ARK_API_KEY or settings.DOUBAO_API_KEY,
-    model=settings.DOUBAO_MODEL,
-    temperature=0
-).bind_tools(tools)
+def load_runtime_settings():
+    query = "MATCH (s:SystemSettings {id: 'default'}) RETURN s"
+    try:
+        results = neo4j_client.execute_query(query)
+        if not results:
+            return {
+                "modelName": settings.DOUBAO_MODEL,
+                "temperature": 0,
+                "maxTokens": 2048
+            }
+        stored = results[0].get("s", {})
+        return {
+            "modelName": stored.get("modelName", settings.DOUBAO_MODEL),
+            "temperature": stored.get("temperature", 0),
+            "maxTokens": stored.get("maxTokens", 2048)
+        }
+    except Exception:
+        return {
+            "modelName": settings.DOUBAO_MODEL,
+            "temperature": 0,
+            "maxTokens": 2048
+        }
+
+def build_llm():
+    runtime = load_runtime_settings()
+    return ChatOpenAI(
+        base_url=settings.DOUBAO_BASE_URL,
+        api_key=settings.ARK_API_KEY or settings.DOUBAO_API_KEY,
+        model=runtime["modelName"],
+        temperature=runtime["temperature"],
+        max_tokens=runtime["maxTokens"]
+    ).bind_tools(tools)
 
 # 3. 定义图状态
 class AgentState(TypedDict):
@@ -100,7 +125,7 @@ class AgentState(TypedDict):
 # 4. 定义节点
 def agent_node(state: AgentState):
     messages = state["messages"]
-    response = llm.invoke(messages)
+    response = build_llm().invoke(messages)
     return {"messages": [response]}
 
 # 5. 构建图

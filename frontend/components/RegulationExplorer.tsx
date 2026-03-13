@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { fetchRegulations, fetchRegulationDetails } from '../services/auditService';
 import { RegulationClause } from '../types';
 import { Book, ChevronRight, ChevronDown, ExternalLink, Search, ShieldCheck, AlertTriangle, FileText, Loader2 } from 'lucide-react';
@@ -9,6 +9,7 @@ const RegulationExplorer: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string>('A.9.1.1');
   const [details, setDetails] = useState<any>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
@@ -39,6 +40,54 @@ const RegulationExplorer: React.FC = () => {
     setExpanded(prev => ({...prev, [id]: !prev[id]}));
   };
 
+  const filteredRegulations = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return regulations;
+    return regulations
+      .map((section) => {
+        const sectionMatch =
+          section.title.toLowerCase().includes(query) ||
+          section.code.toLowerCase().includes(query);
+        const matchedChildren = (section.children || []).filter((child) =>
+          child.title.toLowerCase().includes(query) ||
+          child.code.toLowerCase().includes(query) ||
+          (child.description || '').toLowerCase().includes(query)
+        );
+        if (sectionMatch) {
+          return { ...section, children: section.children || [] };
+        }
+        if (matchedChildren.length) {
+          return { ...section, children: matchedChildren };
+        }
+        return null;
+      })
+      .filter(Boolean) as RegulationClause[];
+  }, [regulations, searchQuery]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) return;
+    setExpanded((prev) => {
+      const next = { ...prev };
+      filteredRegulations.forEach((section) => {
+        next[section.id] = true;
+      });
+      return next;
+    });
+  }, [searchQuery, filteredRegulations]);
+
+  useEffect(() => {
+    if (!filteredRegulations.length) return;
+    const allIds = new Set<string>();
+    filteredRegulations.forEach((section) => {
+      (section.children || []).forEach((child) => allIds.add(child.id));
+    });
+    if (selectedId && allIds.has(selectedId)) return;
+    const firstChild = filteredRegulations.flatMap((section) => section.children || [])[0];
+    if (firstChild?.id) {
+      setSelectedId(firstChild.id);
+    }
+  }, [filteredRegulations, selectedId]);
+
   return (
     <div className="p-6 lg:p-10 space-y-6 h-full flex flex-col animate-fade-in max-w-[1920px] mx-auto w-full">
       <div className="flex justify-between items-end">
@@ -51,6 +100,8 @@ const RegulationExplorer: React.FC = () => {
             <input 
             type="text" 
             placeholder="搜索控制项..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 pr-4 py-2 bg-black/40 border border-white/10 rounded-lg text-sm focus:outline-none focus:border-violet-500/50 w-64 text-zinc-200 transition-all placeholder:text-zinc-600"
             />
         </div>
@@ -65,7 +116,7 @@ const RegulationExplorer: React.FC = () => {
              </h3>
           </div>
           <div className="overflow-y-auto flex-1 p-2 custom-scrollbar space-y-1">
-            {regulations.map((section) => (
+            {filteredRegulations.map((section) => (
               <div key={section.id} className="select-none">
                 <button 
                   onClick={() => toggleExpand(section.id)}

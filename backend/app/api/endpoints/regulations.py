@@ -50,6 +50,19 @@ async def get_regulation_details(id: str):
     MATCH (c:Control {id: $id})
     OPTIONAL MATCH (c)-[:MITIGATES]->(r:Risk)
     OPTIONAL MATCH (c)<-[:EVIDENCED_BY]-(d:Document)
+    WITH c,
+         collect(DISTINCT {
+            id: r.id,
+            title: r.title,
+            severity: r.severity,
+            status: r.status,
+            description: r.description
+         }) as risks,
+         collect(DISTINCT {
+            id: d.id,
+            name: d.name,
+            status: d.status
+         }) as evidence
     RETURN {
         control: {
             id: c.id,
@@ -57,24 +70,19 @@ async def get_regulation_details(id: str):
             title: c.title,
             description: c.description
         },
-        risks: collect(DISTINCT {
-            id: r.id,
-            title: r.title,
-            severity: r.severity,
-            status: r.status,
-            description: r.description
-        }),
-        evidence: collect(DISTINCT {
-            id: d.id,
-            name: d.name,
-            status: d.status
-        })
+        risks: risks,
+        evidence: evidence
     } as details
     """
     try:
         results = neo4j_client.execute_query(query, parameters={"id": id})
         if not results:
-             raise HTTPException(status_code=404, detail="Regulation control not found")
-        return results[0]['details']
+            raise HTTPException(status_code=404, detail="Regulation control not found")
+        details = results[0]['details']
+        details["risks"] = [r for r in details.get("risks", []) if r.get("id")]
+        details["evidence"] = [e for e in details.get("evidence", []) if e.get("id")]
+        return details
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

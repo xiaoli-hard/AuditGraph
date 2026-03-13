@@ -85,3 +85,11 @@ export interface AgentSettings {
   retrievalTopK: number;
   useGraphRAG: boolean;
 }
+
+export interface UserAccount {
+  username: string;
+  full_name?: string;
+  email?: string;
+  role: 'admin' | 'user';
+  disabled: boolean;
+}

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { fetchGraphData } from '../services/auditService';
 import { GraphNode, GraphLink, GraphData } from '../types/index';
-import { ZoomIn, ZoomOut, RefreshCw, Filter, Loader2, Maximize2, Share2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, RefreshCw, Filter, Loader, Maximize2, Share2 } from 'lucide-react';
 
 interface SimulationNode extends GraphNode {
   x?: number;
@@ -16,12 +16,24 @@ interface SimulationNode extends GraphNode {
 
 interface SimulationLink extends d3.SimulationLinkDatum<SimulationNode> {
   type: string;
+  source: SimulationNode | string | number;
+  target: SimulationNode | string | number;
 }
 
 const GraphView: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<GraphData | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [groupFilters, setGroupFilters] = useState<Record<number, boolean>>({
+    1: true,
+    2: true,
+    3: true,
+    4: true
+  });
 
   const loadGraphData = async () => {
     setLoading(true);
@@ -71,9 +83,22 @@ const GraphView: React.FC = () => {
 
     const nodes: SimulationNode[] = data.nodes.map(d => ({ ...d }));
     const links: SimulationLink[] = data.links.map(d => ({ ...d }));
+    const getEndpointId = (endpoint: SimulationNode | string | number) => {
+      if (typeof endpoint === "string") return endpoint;
+      if (typeof endpoint === "number") return String(endpoint);
+      return endpoint.id;
+    };
+    const activeGroups = new Set(
+      Object.entries(groupFilters)
+        .filter(([, enabled]) => enabled)
+        .map(([group]) => Number(group))
+    );
+    const visibleNodes = nodes.filter(n => activeGroups.has(n.group));
+    const visibleNodeIds = new Set(visibleNodes.map(n => n.id));
+    const visibleLinks = links.filter(l => visibleNodeIds.has(getEndpointId(l.source)) && visibleNodeIds.has(getEndpointId(l.target)));
 
-    const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink<SimulationNode, SimulationLink>(links).id(d => d.id).distance(150))
+    const simulation = d3.forceSimulation(visibleNodes)
+      .force("link", d3.forceLink<SimulationNode, SimulationLink>(visibleLinks).id(d => d.id).distance(150))
       .force("charge", d3.forceManyBody().strength(-600))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collide", d3.forceCollide(60));
@@ -98,7 +123,7 @@ const GraphView: React.FC = () => {
       .attr("stroke", "#3f3f46") // Zinc-700
       .attr("stroke-opacity", 0.4)
       .selectAll("line")
-      .data(links)
+      .data(visibleLinks)
       .join("line")
       .attr("stroke-width", 1)
       .attr("marker-end", "url(#end)");
@@ -106,7 +131,7 @@ const GraphView: React.FC = () => {
     // Node Groups
     const node = container.append("g")
       .selectAll("g")
-      .data(nodes)
+      .data(visibleNodes)
       .join("g")
       .call(d3.drag<SVGGElement, SimulationNode>()
           .on("start", dragstarted)
@@ -154,7 +179,7 @@ const GraphView: React.FC = () => {
     // Link labels
     const linkText = container.append("g")
       .selectAll("text")
-      .data(links)
+      .data(visibleLinks)
       .join("text")
       .text(d => d.type)
       .attr("font-size", "8px")
@@ -201,12 +226,40 @@ const GraphView: React.FC = () => {
         container.attr("transform", event.transform);
       });
 
+    zoomRef.current = zoom;
     d3.select(svgRef.current).call(zoom);
 
-  }, [data]);
+  }, [data, groupFilters]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const handleZoomIn = () => {
+    if (!svgRef.current || !zoomRef.current) return;
+    d3.select(svgRef.current).transition().duration(200).call(zoomRef.current.scaleBy, 1.2);
+  };
+
+  const handleZoomOut = () => {
+    if (!svgRef.current || !zoomRef.current) return;
+    d3.select(svgRef.current).transition().duration(200).call(zoomRef.current.scaleBy, 0.8);
+  };
+
+  const handleToggleFullscreen = async () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      await containerRef.current.requestFullscreen();
+    } else {
+      await document.exitFullscreen();
+    }
+  };
 
   return (
-    <div className="h-full flex flex-col bg-black relative overflow-hidden">
+    <div ref={containerRef} className="h-full flex flex-col bg-black relative overflow-hidden">
       {/* Background Grid */}
       <div className="absolute inset-0 z-0 opacity-20" style={{ 
           backgroundImage: 'radial-gradient(#3f3f46 1px, transparent 1px)', 
@@ -231,15 +284,46 @@ const GraphView: React.FC = () => {
            </div>
         </div>
         
-        <div className="flex gap-2 pointer-events-auto">
-          <button className="flex items-center gap-2 px-3 py-2 bg-black/50 backdrop-blur border border-white/10 text-zinc-300 rounded-lg text-sm hover:bg-white/10 transition-colors">
+        <div className="flex gap-2 pointer-events-auto relative">
+          <button
+            onClick={() => setShowFilters((prev) => !prev)}
+            className="flex items-center gap-2 px-3 py-2 bg-black/50 backdrop-blur border border-white/10 text-zinc-300 rounded-lg text-sm hover:bg-white/10 transition-colors"
+          >
             <Filter size={16} /> <span className="hidden md:inline">筛选</span>
           </button>
+          {showFilters && (
+            <div className="absolute right-0 top-12 w-48 glass-panel rounded-xl p-3 border border-white/10">
+              {[
+                { group: 1, label: "标准条款", color: "text-violet-400" },
+                { group: 2, label: "控制项", color: "text-blue-400" },
+                { group: 3, label: "审计证据", color: "text-emerald-400" },
+                { group: 4, label: "安全风险", color: "text-rose-400" }
+              ].map((item) => (
+                <label key={item.group} className="flex items-center justify-between py-1 text-xs text-zinc-300 cursor-pointer">
+                  <span className={`flex items-center gap-2 ${item.color}`}>
+                    <span className="w-2 h-2 rounded-full bg-current"></span>
+                    {item.label}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={groupFilters[item.group as 1 | 2 | 3 | 4]}
+                    onChange={() =>
+                      setGroupFilters((prev) => ({
+                        ...prev,
+                        [item.group]: !prev[item.group as 1 | 2 | 3 | 4]
+                      }))
+                    }
+                    className="accent-violet-500"
+                  />
+                </label>
+              ))}
+            </div>
+          )}
           <button 
             onClick={loadGraphData}
             className="flex items-center gap-2 px-3 py-2 bg-violet-600 text-white rounded-lg text-sm hover:bg-violet-500 shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors"
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />} 
+            {loading ? <Loader size={16} className="animate-spin" /> : <RefreshCw size={16} />} 
           </button>
         </div>
       </div>
@@ -261,13 +345,13 @@ const GraphView: React.FC = () => {
         
         {/* HUD Controls Bottom Left */}
         <div className="absolute bottom-6 left-6 flex flex-col gap-2 z-10">
-          <button className="p-3 bg-zinc-900/90 border border-white/10 rounded-lg text-zinc-400 hover:text-white hover:border-violet-500/50 transition-all">
+          <button onClick={handleZoomIn} className="p-3 bg-zinc-900/90 border border-white/10 rounded-lg text-zinc-400 hover:text-white hover:border-violet-500/50 transition-all">
             <ZoomIn size={20} />
           </button>
-          <button className="p-3 bg-zinc-900/90 border border-white/10 rounded-lg text-zinc-400 hover:text-white hover:border-violet-500/50 transition-all">
+          <button onClick={handleZoomOut} className="p-3 bg-zinc-900/90 border border-white/10 rounded-lg text-zinc-400 hover:text-white hover:border-violet-500/50 transition-all">
              <ZoomOut size={20} />
           </button>
-          <button className="p-3 bg-zinc-900/90 border border-white/10 rounded-lg text-zinc-400 hover:text-white hover:border-violet-500/50 transition-all mt-2">
+          <button onClick={handleToggleFullscreen} className={`p-3 bg-zinc-900/90 border rounded-lg transition-all mt-2 ${isFullscreen ? 'border-violet-500/50 text-violet-400' : 'border-white/10 text-zinc-400 hover:text-white hover:border-violet-500/50'}`}>
              <Maximize2 size={20} />
           </button>
         </div>

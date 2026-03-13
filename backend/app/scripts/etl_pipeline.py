@@ -102,15 +102,18 @@ def load_relationships():
 def run_etl():
     logger.info("Starting ETL Pipeline...")
     
-    # Optional: Clear DB
-    logger.info("Clearing existing database...")
-    neo4j_client.execute_query("MATCH (n) DETACH DELETE n")
-    
-    load_risks()
-    load_controls_and_entities()
-    load_relationships()
-    
-    logger.info("ETL Pipeline Completed Successfully.")
+    try:
+        # Optional: Clear DB
+        logger.info("Clearing existing database...")
+        neo4j_client.execute_query("MATCH (n) DETACH DELETE n")
+        
+        load_risks()
+        load_controls_and_entities()
+        load_relationships()
+        
+        logger.info("ETL Pipeline Completed Successfully.")
+    finally:
+        neo4j_client.close()
 
 if __name__ == "__main__":
     run_etl()

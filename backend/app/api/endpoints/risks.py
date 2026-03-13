@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import List, Optional
 from app.db.neo4j_client import neo4j_client
+from datetime import datetime
+from uuid import uuid4
 
 router = APIRouter()
 
@@ -20,13 +22,45 @@ class RiskItem(BaseModel):
 class RemediationRequest(BaseModel):
     suggestion: str
 
+class RiskCreateRequest(BaseModel):
+    title: str
+    description: str
+    severity: str
+    category: Optional[str] = None
+    owner: Optional[str] = None
+
 @router.get("/", response_model=List[RiskItem])
-async def get_risks():
+async def get_risks(
+    search: Optional[str] = Query(default=None),
+    severity: Optional[str] = Query(default=None),
+    status: Optional[str] = Query(default=None),
+    category: Optional[str] = Query(default=None),
+    sort: Optional[str] = Query(default=None)
+):
     """
     获取所有风险项列表。
     """
-    query = "MATCH (r:Risk) RETURN r"
-    results = neo4j_client.execute_query(query)
+    order_clause = ""
+    if sort == "severity_asc":
+        order_clause = "ORDER BY CASE r.severity WHEN 'Low' THEN 1 WHEN 'Medium' THEN 2 WHEN 'High' THEN 3 ELSE 4 END ASC"
+    elif sort == "severity_desc":
+        order_clause = "ORDER BY CASE r.severity WHEN 'Low' THEN 1 WHEN 'Medium' THEN 2 WHEN 'High' THEN 3 ELSE 4 END DESC"
+
+    query = f"""
+    MATCH (r:Risk)
+    WHERE ($search IS NULL OR toLower(r.title) CONTAINS toLower($search) OR toLower(r.description) CONTAINS toLower($search) OR toLower(r.id) CONTAINS toLower($search))
+      AND ($severity IS NULL OR r.severity = $severity)
+      AND ($status IS NULL OR r.status = $status)
+      AND ($category IS NULL OR r.category = $category)
+    RETURN r
+    {order_clause}
+    """
+    results = neo4j_client.execute_query(query, {
+        "search": search,
+        "severity": severity,
+        "status": status,
+        "category": category
+    })
     
     # results 是字典列表, 例如 [{'r': {'id': 'R-001', ...}}]
     risks = []
@@ -37,6 +71,30 @@ async def get_risks():
         risks.append(node_data)
         
     return risks
+
+@router.post("/", response_model=RiskItem)
+async def create_risk(request: RiskCreateRequest):
+    risk_id = f"R-{uuid4().hex[:8].upper()}"
+    now = datetime.utcnow().strftime("%Y-%m-%d")
+    payload = {
+        "id": risk_id,
+        "title": request.title,
+        "description": request.description,
+        "severity": request.severity,
+        "category": request.category,
+        "owner": request.owner,
+        "status": "Open",
+        "dateIdentified": now
+    }
+    query = """
+    CREATE (r:Risk)
+    SET r = $payload
+    RETURN r
+    """
+    results = neo4j_client.execute_query(query, {"payload": payload})
+    if not results:
+        raise HTTPException(status_code=500, detail="Failed to create risk")
+    return results[0].get("r")
 
 from app.langgraph_agent.graph import run_agent
 

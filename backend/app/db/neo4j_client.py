@@ -37,5 +37,59 @@ class Neo4jClient:
             logger.error(f"查询执行失败: {e}")
             raise e
 
+    def get_user(self, username: str):
+        query = """
+        MATCH (u:User {username: $username})
+        RETURN u
+        """
+        results = self.execute_query(query, {"username": username})
+        if results:
+            return results[0].get("u")
+        return None
+
+    def get_user_by_email(self, email: str):
+        query = """
+        MATCH (u:User {email: $email})
+        RETURN u
+        """
+        results = self.execute_query(query, {"email": email})
+        if results:
+            return results[0].get("u")
+        return None
+
+    def list_users(self):
+        query = """
+        MATCH (u:User)
+        RETURN u
+        ORDER BY u.created_at DESC
+        """
+        results = self.execute_query(query)
+        return [record.get("u") for record in results]
+
+    def create_user(self, payload: dict):
+        query = """
+        CREATE (u:User)
+        SET u = $payload, u.created_at = datetime(), u.updated_at = datetime()
+        RETURN u
+        """
+        results = self.execute_query(query, {"payload": payload})
+        return results[0].get("u") if results else None
+
+    def update_user(self, username: str, updates: dict):
+        query = """
+        MATCH (u:User {username: $username})
+        SET u += $updates, u.updated_at = datetime()
+        RETURN u
+        """
+        results = self.execute_query(query, {"username": username, "updates": updates})
+        return results[0].get("u") if results else None
+
+    def delete_user(self, username: str):
+        query = """
+        MATCH (u:User {username: $username})
+        DETACH DELETE u
+        """
+        self.execute_query(query, {"username": username})
+
 # 全局实例
 neo4j_client = Neo4jClient()

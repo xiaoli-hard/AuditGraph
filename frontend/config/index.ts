@@ -13,4 +13,9 @@ export const ENDPOINTS = {
   AUDIT_STATUS: `${API_BASE_URL}/dashboard/audit-status`, // 审计状态
   REGULATIONS: `${API_BASE_URL}/regulations`, // 法规树
   REPORTS: `${API_BASE_URL}/reports`, // 审计报告
+  AUTH_LOGIN: `${API_BASE_URL}/auth/login`,
+  AUTH_REGISTER: `${API_BASE_URL}/auth/register`,
+  AUTH_ME: `${API_BASE_URL}/auth/me`,
+  USERS: `${API_BASE_URL}/users`,
+  ETL: `${API_BASE_URL}/etl`
 };

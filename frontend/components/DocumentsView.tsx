@@ -1,31 +1,91 @@
-import React, { useEffect, useState } from 'react';
-import { fetchDocuments } from '../services/auditService';
+import React, { useEffect, useRef, useState } from 'react';
+import { deleteDocument, downloadDocument, fetchDocuments, uploadDocuments } from '../services/auditService';
 import { Document } from '../types/index';
-import { FileText, Upload, Search, MoreHorizontal, Loader2 } from 'lucide-react';
+import { FileText, Upload, Search, MoreHorizontal, Loader } from 'lucide-react';
+import { useToast } from './Toast';
 
 const DocumentsView: React.FC = () => {
+  const { showToast } = useToast();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const loadDocuments = async (search?: string) => {
+    try {
+      setLoading(true);
+      const data = await fetchDocuments(search);
+      setDocuments(data);
+    } catch (error) {
+      console.error("Failed to fetch documents", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadDocuments = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchDocuments();
-        setDocuments(data);
-      } catch (error) {
-        console.error("Failed to fetch documents", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadDocuments();
   }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      loadDocuments(searchQuery.trim() ? searchQuery.trim() : undefined);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleUploadChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+    try {
+      setUploading(true);
+      const created = await uploadDocuments(files);
+      showToast(`已上传 ${created.length} 个文件`, 'success');
+      await loadDocuments(searchQuery.trim() ? searchQuery.trim() : undefined);
+    } catch (error) {
+      console.error(error);
+      showToast('上传失败，请检查后端接口', 'error');
+    } finally {
+      setUploading(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleDownload = async (docId: string) => {
+    try {
+      await downloadDocument(docId);
+      showToast('已开始下载', 'success');
+    } catch (error) {
+      console.error(error);
+      showToast('下载失败，请检查后端接口', 'error');
+    } finally {
+      setOpenMenuId(null);
+    }
+  };
+
+  const handleDelete = async (docId: string) => {
+    try {
+      await deleteDocument(docId);
+      showToast('已删除文档', 'success');
+      await loadDocuments(searchQuery.trim() ? searchQuery.trim() : undefined);
+    } catch (error) {
+      console.error(error);
+      showToast('删除失败，请检查后端接口', 'error');
+    } finally {
+      setOpenMenuId(null);
+    }
+  };
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-zinc-500">
-        <Loader2 className="w-8 h-8 animate-spin mb-2" />
+        <Loader className="w-8 h-8 animate-spin mb-2" />
         <p>Loading Documents...</p>
       </div>
     );
@@ -38,10 +98,11 @@ const DocumentsView: React.FC = () => {
           <h2 className="text-3xl font-bold text-white tracking-tight">审计证据库</h2>
           <p className="text-zinc-400 mt-1 text-sm">管理审计底稿与RAG向量上下文索引</p>
         </div>
-        <button className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-lg transition-all shadow-[0_0_20px_rgba(124,58,237,0.3)] text-sm font-bold tracking-wide">
-          <Upload size={16} />
-          上传证据文件
+        <button onClick={handleUploadClick} className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-lg transition-all shadow-[0_0_20px_rgba(124,58,237,0.3)] text-sm font-bold tracking-wide">
+          {uploading ? <Loader size={16} className="animate-spin" /> : <Upload size={16} />}
+          {uploading ? '上传中...' : '上传证据文件'}
         </button>
+        <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleUploadChange} />
       </div>
 
       <div className="glass-panel rounded-2xl overflow-hidden flex-1 flex flex-col shadow-2xl">
@@ -52,6 +113,8 @@ const DocumentsView: React.FC = () => {
                <input 
                   type="text" 
                   placeholder="搜索文件名或内容..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9 pr-4 py-2 bg-black/40 border border-white/10 rounded-lg text-sm focus:outline-none focus:border-violet-500/50 text-zinc-200 w-80 transition-all placeholder:text-zinc-600"
                />
             </div>
@@ -61,7 +124,7 @@ const DocumentsView: React.FC = () => {
                </div>
                <div className="h-4 w-px bg-white/10"></div>
                <div className="text-xs font-mono text-zinc-500">
-                  向量数量: <span className="text-violet-400 font-bold">{documents.length}</span>
+                  显示数量: <span className="text-violet-400 font-bold">{documents.length}</span>
                </div>
             </div>
          </div>
@@ -104,12 +167,31 @@ const DocumentsView: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="p-2 text-zinc-600 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-                        <MoreHorizontal size={18} />
-                    </button>
+                    <div className="relative inline-flex">
+                      <button onClick={() => setOpenMenuId((prev) => prev === doc.id ? null : doc.id)} className="p-2 text-zinc-600 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                          <MoreHorizontal size={18} />
+                      </button>
+                      {openMenuId === doc.id && (
+                        <div className="absolute right-0 top-10 w-36 glass-panel rounded-lg border border-white/10 p-2 z-20">
+                          <button onClick={() => handleDownload(doc.id)} className="w-full text-left text-xs text-zinc-300 hover:text-white hover:bg-white/5 px-2 py-1 rounded">
+                            下载文件
+                          </button>
+                          <button onClick={() => handleDelete(doc.id)} className="w-full text-left text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-2 py-1 rounded">
+                            删除记录
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
+              {!documents.length && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-zinc-500 text-sm">
+                    未找到匹配的证据文件
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
