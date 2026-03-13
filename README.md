@@ -2,13 +2,25 @@
 
 AuditGraph AI 是一个企业级智能审计助手，深度融合了**知识图谱 (Neo4j)** 与 **大语言模型 (LangGraph/LangChain)** 技术。它能够将非结构化的审计文档（如法规、控制项、证据）转化为结构化的图谱数据，提供实时的风险分析、合规性监控以及基于上下文的智能问答能力。
 
-## 🚀 核心功能
+## 🚀 核心功能模块
 
-- **全景知识图谱**：交互式可视化展示审计实体（法规、控制、风险、证据）及其多维关联，支持节点穿透与路径分析。
-- **智能审计助手**：内置基于 LangGraph 的 AI Agent，具备上下文记忆与推理能力，可回答复杂的审计合规问题。
-- **实时风险看板**：基于真实数据驱动的动态仪表盘，实时统计合规率、高危风险分布及系统健康度。
-- **自动化 ETL 管道**：提供标准化的数据导入工具，支持将 CSV 等格式的审计源数据自动构建为图谱网络。
-- **法规穿透分析**：从法规条款到具体落地控制项及证据链的完整追溯视图。
+### 审计用户功能模块
+- **登录注册与安全认证**：支持用户注册、登录、Token 鉴权、密码加密存储（Neo4j）、前端路由保护。
+- **审计全景仪表盘**：实时展示合规率统计、风险分布图表、知识图谱概览、实时日志动态。
+- **知识图谱可视化交互**：基于 D3.js 实现力导向图，支持节点筛选、缩放、拖拽及详情查看。
+- **智能审计助手问答**：集成 LangGraph Agent，支持流式对话、多跳推理及图谱查询 (`query_graph`)。
+- **法规与文档溯源**：
+    - **法规**：树状浏览法规条款及关联控制项。
+    - **文档**：支持文件上传、下载、搜索及删除管理。
+- **风险评估与报告**：
+    - **风险管理**：风险项的增删改查、状态流转及 AI 生成修复建议。
+    - **报告生成**：自动生成审计报告并支持下载。
+
+### 系统后台管理模块
+- **管理员登录与权限控制**：区分 Admin/User 角色，管理员拥有专属管理面板及高级操作权限。
+- **数据导入与处理**：提供一键运行 ETL 功能，支持实时查看数据导入进度与构建日志。
+- **大模型服务配置**：支持在线修改 AI 模型参数（模型选择、温度、TopK、RAG 开关）并持久化存储。
+- **系统日志与运行监控**：实时监控数据库与 API 连接状态，支持导出系统运行日志。
 
 ## 🛠 技术架构
 
@@ -18,16 +30,18 @@ AuditGraph AI 是一个企业级智能审计助手，深度融合了**知识图�
 - **UI 组件库**: Tailwind CSS, Lucide React
 - **可视化**: Recharts (统计图表), D3.js (图谱渲染)
 - **状态管理**: React Hooks
+- **路由管理**: React Router (带权限保护)
 
 ### 后端 (Backend)
 - **API 框架**: Python FastAPI
 - **AI 编排**: LangGraph, LangChain
 - **图数据库驱动**: Neo4j Python Driver
 - **数据处理**: Pandas
-- **认证安全**: OAuth2 + JWT (后端已就绪)
+- **认证安全**: OAuth2 + JWT + BCrypt
+- **任务调度**: BackgroundTasks (ETL)
 
 ### 数据设施
-- **图数据库**: Neo4j (存储实体关系)
+- **图数据库**: Neo4j (存储实体关系与用户数据)
 - **大模型支持**: Google Gemini / 豆包 (火山引擎) / OpenAI
 
 ## 📂 项目结构
@@ -36,7 +50,7 @@ AuditGraph AI 是一个企业级智能审计助手，深度融合了**知识图�
 .
 ├── backend/                # Python FastAPI 后端
 │   ├── app/
-│   │   ├── api/            # REST API 端点 (Auth, Chat, Dashboard, Graph)
+│   │   ├── api/            # REST API 端点 (Auth, Chat, Dashboard, Graph, Users, ETL)
 │   │   ├── core/           # 系统配置与安全鉴权
 │   │   ├── db/             # Neo4j 数据库连接层
 │   │   ├── langgraph_agent/# AI Agent 核心逻辑 (RAG, Graph RAG)
@@ -46,7 +60,7 @@ AuditGraph AI 是一个企业级智能审计助手，深度融合了**知识图�
 │   ├── Dockerfile          # 后端容器构建文件
 │   └── requirements.txt    # Python 依赖清单
 ├── frontend/               # React 前端工程
-│   ├── components/         # 业务组件 (Dashboard, Chat, GraphView)
+│   ├── components/         # 业务组件 (Dashboard, Chat, Settings, RiskRegister)
 │   ├── services/           # API 调用封装
 │   ├── types/              # TypeScript 类型定义
 │   ├── Dockerfile          # 前端容器构建文件
@@ -91,23 +105,22 @@ AuditGraph AI 是一个企业级智能审计助手，深度融合了**知识图�
     # LLM API 配置 (以豆包为例)
     ARK_API_KEY=your_volcengine_ark_api_key
     DOUBAO_API_KEY=your_doubao_api_key
-    DOUBAO_MODEL=doubao-pro-32k
+    DOUBAO_MODEL=doubao-seed-1-6-250615
     
     # 安全配置
     SECRET_KEY=your_secret_key_for_jwt
+    
+    # 管理员初始化配置
+    ADMIN_USERNAME=admin
+    ADMIN_PASSWORD=admin
+    ADMIN_EMAIL=admin@example.com
     ```
 
-4.  **数据初始化 (ETL)**：
-    将 CSV 数据导入 Neo4j 数据库（**重要：首次运行前必须执行**）：
-    ```bash
-    python -m app.scripts.etl_pipeline
-    ```
-    *注：此脚本会读取 `backend/data/` 下的 `risks.csv`, `controls.csv`, `relationships.csv` 并构建图谱。*
-
-5.  启动后端服务：
+4.  启动后端服务：
     ```bash
     uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     ```
+    *注：首次启动会自动检查并创建默认管理员账号，ETL 数据导入可在前端“系统配置”页面操作。*
     API 文档地址: `http://localhost:8000/docs`
 
 ### 2. 前端设置
@@ -126,7 +139,7 @@ AuditGraph AI 是一个企业级智能审计助手，深度融合了**知识图�
     ```bash
     npm run dev
     ```
-    访问地址: `http://localhost:3000`
+    访问地址: `http://localhost:5173` (或 3000，视 Vite 配置而定)
 
 ## 🐳 Docker 容器化部署
 
@@ -144,8 +157,9 @@ AuditGraph AI 是一个企业级智能审计助手，深度融合了**知识图�
 
 ## 📝 开发注意事项
 
-- **真实数据模式**：项目已完全移除 Mock 数据，前端所有请求均直接连接后端 API。请确保后端服务正常运行且 Neo4j 数据库已通过 ETL 脚本填充数据。
-- **鉴权模块**：后端已实现 OAuth2 接口 (`/api/login`)，前端鉴权页面尚在开发中。
+- **真实数据模式**：项目已完全移除 Mock 数据，前端所有请求均直接连接后端 API。
+- **默认账号**：系统初始化后，默认管理员账号为 `admin` / `admin`。请登录后及时修改密码。
+- **ETL 数据初始化**：初次部署后，请使用管理员账号登录，进入“系统配置”页面，点击“运行 ETL”以初始化图谱数据。
 
 ##   许可证
 
