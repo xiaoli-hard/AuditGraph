@@ -153,8 +153,8 @@ const RiskRegister: React.FC = () => {
     <div className="p-8 space-y-6 animate-fade-in max-w-[1600px] mx-auto h-full flex flex-col">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">风险登记簿</h2>
-          <p className="text-zinc-400 mt-1 text-sm">活跃威胁面与整改追踪</p>
+          <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">风险登记簿</h2>
+          <p className="text-zinc-500 mt-1 text-sm">活跃威胁面与整改追踪</p>
         </div>
         <div className="flex gap-3">
           <div className="relative group">
@@ -164,22 +164,22 @@ const RiskRegister: React.FC = () => {
                 placeholder="搜索 CVE 编号或关键词..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-black/40 border border-white/10 rounded-lg text-sm focus:outline-none focus:border-violet-500/50 w-64 text-zinc-200 placeholder:text-zinc-600 transition-all"
+                className="pl-9 pr-4 py-2 bg-white border border-zinc-300 rounded-lg text-sm focus:outline-none focus:border-violet-500/50 w-64 text-zinc-700 placeholder:text-zinc-400 transition-all"
              />
           </div>
           <div className="relative">
-            <button onClick={() => setShowFilters((prev) => !prev)} className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-zinc-300 hover:bg-white/10 font-medium transition-colors">
+            <button onClick={() => setShowFilters((prev) => !prev)} className="flex items-center gap-2 px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm text-zinc-700 hover:bg-zinc-100 font-medium transition-colors">
             <SlidersHorizontal size={16} /> 筛选
           </button>
             {showFilters && (
-              <div className="absolute right-0 mt-2 w-56 glass-panel rounded-xl border border-white/10 p-3 z-20">
+              <div className="absolute right-0 mt-2 w-56 glass-panel rounded-xl border border-zinc-200 p-3 z-20">
                 <div className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider mb-2">严重程度</div>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {(['All', 'High', 'Medium', 'Low'] as const).map((level) => (
                     <button
                       key={level}
                       onClick={() => setSeverityFilter(level)}
-                      className={`px-2 py-1 text-[10px] rounded border ${severityFilter === level ? 'border-violet-500/60 text-violet-300 bg-violet-500/10' : 'border-white/10 text-zinc-400 hover:text-zinc-200'}`}
+                      className={`px-2 py-1 text-[10px] rounded border ${severityFilter === level ? 'border-violet-500/60 text-violet-600 bg-violet-500/10' : 'border-zinc-200 text-zinc-500 hover:text-zinc-700'}`}
                     >
                       {level === 'All' ? '全部' : level === 'High' ? '高危' : level === 'Medium' ? '中危' : '低危'}
                     </button>
@@ -189,7 +189,7 @@ const RiskRegister: React.FC = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as RiskItem['status'] | 'All')}
-                  className="w-full mb-3 bg-black/40 border border-white/10 rounded-lg text-xs text-zinc-200 px-2 py-2 focus:outline-none focus:border-violet-500/50"
+                  className="w-full mb-3 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-700 px-2 py-2 focus:outline-none focus:border-violet-500/50"
                 >
                   <option value="All">全部</option>
                   <option value="Open">未解决</option>
@@ -202,7 +202,7 @@ const RiskRegister: React.FC = () => {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-lg text-xs text-zinc-200 px-2 py-2 focus:outline-none focus:border-violet-500/50"
+                  className="w-full bg-white border border-zinc-200 rounded-lg text-xs text-zinc-700 px-2 py-2 focus:outline-none focus:border-violet-500/50"
                 >
                   <option value="All">全部</option>
                   {categories.map((category) => (
@@ -219,16 +219,16 @@ const RiskRegister: React.FC = () => {
         </div>
       </div>
 
-      <div className="glass-panel rounded-xl overflow-hidden border border-white/10 flex-1 flex flex-col">
+      <div className="glass-panel rounded-xl overflow-hidden border border-zinc-200 flex-1 flex flex-col">
         <div className="overflow-y-auto flex-1">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-zinc-900/90 backdrop-blur sticky top-0 z-10">
+            <thead className="bg-white backdrop-blur sticky top-0 z-10 border-b border-zinc-200">
               <tr>
                 <th className="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-wider w-24">编号</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">风险描述</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">安全领域</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                  <div onClick={handleToggleSort} className="flex items-center gap-1 cursor-pointer hover:text-zinc-300">
+                  <div onClick={handleToggleSort} className="flex items-center gap-1 cursor-pointer hover:text-zinc-700">
                     严重程度 <ArrowUpDown size={10} />
                   </div>
                 </th>
@@ -237,20 +237,20 @@ const RiskRegister: React.FC = () => {
                 <th className="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-wider text-right"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-zinc-100">
               {filteredRisks.map((risk) => (
-                <tr key={risk.id} className="hover:bg-white/5 transition-colors group">
+                <tr key={risk.id} className="hover:bg-zinc-50 transition-colors group">
                   <td className="px-6 py-4">
                     <span className="font-mono text-xs font-medium text-violet-400 bg-violet-500/10 px-2 py-1 rounded border border-violet-500/20">
                       {risk.id}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="font-semibold text-zinc-200 text-sm group-hover:text-white transition-colors">{risk.title}</div>
+                    <div className="font-semibold text-zinc-700 text-sm group-hover:text-zinc-900 transition-colors">{risk.title}</div>
                     <div className="text-xs text-zinc-500 mt-0.5 truncate max-w-md font-mono">{risk.description}</div>
                   </td>
                   <td className="px-6 py-4 text-sm text-zinc-400">
-                     <span className="inline-flex items-center px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-[10px] uppercase tracking-wide">
+                     <span className="inline-flex items-center px-2 py-1 rounded bg-zinc-100 border border-zinc-200 text-[10px] uppercase tracking-wide">
                        {risk.category === 'Access Control' ? '访问控制' : 
                         risk.category === 'Business Continuity' ? '业务连续性' :
                         risk.category === 'Encryption' ? '加密安全' :
@@ -272,7 +272,7 @@ const RiskRegister: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-zinc-400 flex items-center gap-2">
-                     <div className="w-5 h-5 rounded bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-300">
+                     <div className="w-5 h-5 rounded bg-zinc-100 flex items-center justify-center text-[10px] font-bold text-zinc-600">
                         {(risk.owner || '?').charAt(0)}
                      </div>
                      {risk.owner === 'IT Security' ? '信息安全部' : 
@@ -296,12 +296,12 @@ const RiskRegister: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="relative inline-flex">
-                      <button onClick={() => setOpenMenuId((prev) => prev === risk.id ? null : risk.id)} className="p-1.5 text-zinc-600 hover:text-white hover:bg-white/10 rounded transition-colors">
+                      <button onClick={() => setOpenMenuId((prev) => prev === risk.id ? null : risk.id)} className="p-1.5 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded transition-colors">
                         <MoreHorizontal size={16} />
                       </button>
                       {openMenuId === risk.id && (
-                        <div className="absolute right-0 top-9 w-40 glass-panel rounded-lg border border-white/10 p-2 z-20">
-                          <button onClick={() => handleRemediate(risk.id)} className="w-full text-left text-xs text-zinc-300 hover:text-white hover:bg-white/5 px-2 py-1 rounded">
+                        <div className="absolute right-0 top-9 w-40 glass-panel rounded-lg border border-zinc-200 p-2 z-20">
+                          <button onClick={() => handleRemediate(risk.id)} className="w-full text-left text-xs text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 px-2 py-1 rounded">
                             启动修复流程
                           </button>
                           <button onClick={() => handleFalsePositive(risk.id)} className="w-full text-left text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-2 py-1 rounded">
@@ -325,30 +325,30 @@ const RiskRegister: React.FC = () => {
         </div>
       </div>
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-xl bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-6 space-y-4">
+        <div className="fixed inset-0 bg-zinc-900/35 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-xl bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">新增风险</h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-zinc-500 hover:text-white transition-colors">×</button>
+              <h3 className="text-lg font-bold text-zinc-900">新增风险</h3>
+              <button onClick={() => setShowCreateModal(false)} className="text-zinc-500 hover:text-zinc-900 transition-colors">×</button>
             </div>
             <div className="space-y-3">
               <input
                 value={newRisk.title}
                 onChange={(e) => setNewRisk((prev) => ({ ...prev, title: e.target.value }))}
                 placeholder="风险标题"
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500/50"
+                className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:border-violet-500/50"
               />
               <textarea
                 value={newRisk.description}
                 onChange={(e) => setNewRisk((prev) => ({ ...prev, description: e.target.value }))}
                 placeholder="风险描述"
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500/50 h-24 resize-none"
+                className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:border-violet-500/50 h-24 resize-none"
               />
               <div className="grid grid-cols-2 gap-3">
                 <select
                   value={newRisk.severity}
                   onChange={(e) => setNewRisk((prev) => ({ ...prev, severity: e.target.value as RiskItem['severity'] }))}
-                  className="bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500/50"
+                  className="bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:border-violet-500/50"
                 >
                   <option value="High">高危</option>
                   <option value="Medium">中危</option>
@@ -358,18 +358,18 @@ const RiskRegister: React.FC = () => {
                   value={newRisk.category}
                   onChange={(e) => setNewRisk((prev) => ({ ...prev, category: e.target.value }))}
                   placeholder="安全领域（可选）"
-                  className="bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500/50"
+                  className="bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:border-violet-500/50"
                 />
               </div>
               <input
                 value={newRisk.owner}
                 onChange={(e) => setNewRisk((prev) => ({ ...prev, owner: e.target.value }))}
                 placeholder="负责人（可选）"
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500/50"
+                className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:border-violet-500/50"
               />
             </div>
             <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 rounded-lg border border-white/10 text-zinc-300 text-sm hover:bg-white/5">取消</button>
+              <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 rounded-lg border border-zinc-200 text-zinc-700 text-sm hover:bg-zinc-100">取消</button>
               <button onClick={handleCreateRisk} className="px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-bold hover:bg-violet-500">确认新增</button>
             </div>
           </div>

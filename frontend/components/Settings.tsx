@@ -187,13 +187,13 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
   return (
     <div className="h-full overflow-y-auto">
       <div className="p-6 lg:p-10 max-w-5xl mx-auto animate-fade-in w-full">
-      <div className="mb-10 flex justify-between items-end border-b border-white/5 pb-6">
+      <div className="mb-10 flex justify-between items-end border-b border-zinc-200 pb-6">
         <div>
-           <h2 className="text-3xl font-bold text-white tracking-tight">系统配置</h2>
-           <p className="text-zinc-400 mt-1 text-sm">管理 AI 智能体参数、RAG 策略及 API 密钥</p>
+           <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">系统配置</h2>
+           <p className="text-zinc-500 mt-1 text-sm">管理 AI 智能体参数、RAG 策略及 API 密钥</p>
         </div>
         <div className="flex gap-3">
-             <button onClick={handleReset} className="flex items-center gap-2 px-4 py-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors text-sm font-medium">
+             <button onClick={handleReset} className="flex items-center gap-2 px-4 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors text-sm font-medium">
                 <RefreshCw size={16} /> 重置
               </button>
               <button onClick={handleSave} className="flex items-center gap-2 px-6 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-500 shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors text-sm font-bold tracking-wide">
@@ -207,8 +207,8 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
         {/* Left Col */}
         <div className="lg:col-span-2 space-y-8">
             {/* LLM Section */}
-            <div className="glass-panel rounded-xl border border-white/5 p-6 md:p-8">
-              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
+            <div className="glass-panel rounded-xl border border-zinc-200 p-6 md:p-8">
+              <h3 className="text-lg font-bold text-zinc-900 mb-6 flex items-center gap-3">
                 <div className="p-2 bg-violet-600/20 rounded-lg text-violet-400"><Cpu size={20} /></div>
                 模型配置
               </h3>
@@ -222,7 +222,7 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                         value={settings.modelName}
                         onChange={handleChange}
                         disabled={loading}
-                        className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-zinc-200 focus:border-violet-500/50 outline-none appearance-none cursor-pointer hover:bg-black/60 transition-colors"
+                        className="w-full p-4 bg-white border border-zinc-300 rounded-xl text-zinc-700 focus:border-violet-500/50 outline-none appearance-none cursor-pointer hover:bg-zinc-50 transition-colors"
                       >
                         <option value="doubao-seed-1-6-250615">豆包 Seed 1.6 (推荐)</option>
                         <option value="doubao-pro-32k">豆包 Pro 32k</option>
@@ -244,7 +244,7 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                     value={settings.temperature}
                     onChange={handleChange}
                     disabled={loading}
-                    className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-violet-500 hover:accent-violet-400"
+                    className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-violet-500 hover:accent-violet-400"
                   />
                   <div className="flex justify-between text-[10px] text-zinc-600 mt-2 font-medium uppercase tracking-wide">
                     <span>确定性</span>
@@ -256,16 +256,16 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
             </div>
 
             {/* RAG Section */}
-            <div className="glass-panel rounded-xl border border-white/5 p-6 md:p-8">
-              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
+            <div className="glass-panel rounded-xl border border-zinc-200 p-6 md:p-8">
+              <h3 className="text-lg font-bold text-zinc-900 mb-6 flex items-center gap-3">
                 <div className="p-2 bg-emerald-600/20 rounded-lg text-emerald-400"><Database size={20} /></div>
                 检索增强生成 (RAG)
               </h3>
               
-              <div className="space-y-6 divide-y divide-white/5">
+              <div className="space-y-6 divide-y divide-zinc-200">
                 <div className="flex items-center justify-between pt-2">
                    <div>
-                     <span className="font-bold text-zinc-200 block text-sm">Top-K 检索量</span>
+                     <span className="font-bold text-zinc-700 block text-sm">Top-K 检索量</span>
                      <span className="text-xs text-zinc-500">每次查询检索的文档切片数量。数值越高上下文越丰富，但可能引入噪音。</span>
                    </div>
                    <input 
@@ -274,17 +274,17 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                     value={settings.retrievalTopK}
                     onChange={handleChange}
                     disabled={loading}
-                    className="w-20 p-2 bg-black/40 border border-white/10 rounded-lg text-sm text-center text-white focus:border-emerald-500/50 outline-none"
+                    className="w-20 p-2 bg-white border border-zinc-200 rounded-lg text-sm text-center text-zinc-700 focus:border-emerald-500/50 outline-none"
                    />
                 </div>
                 
                 <div className="flex items-center justify-between pt-6">
                    <div className="flex items-start gap-4">
-                     <div className={`mt-1 p-1.5 rounded-full ${settings.useGraphRAG ? 'bg-indigo-500/20 text-indigo-400' : 'bg-zinc-800 text-zinc-600'}`}>
+                     <div className={`mt-1 p-1.5 rounded-full ${settings.useGraphRAG ? 'bg-indigo-500/20 text-indigo-500' : 'bg-zinc-200 text-zinc-500'}`}>
                         <Network size={18} />
                      </div>
                      <div>
-                       <span className="font-bold text-zinc-200 block text-sm">启用 GraphRAG</span>
+                       <span className="font-bold text-zinc-700 block text-sm">启用 GraphRAG</span>
                        <span className="text-xs text-zinc-500 max-w-sm block mt-1">
                          利用 Neo4j 知识图谱增强向量检索。这将遍历控制项、风险和证据之间的图谱关系。
                        </span>
@@ -298,21 +298,21 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                       onChange={(e) => setSettings({...settings, useGraphRAG: e.target.checked})}
                       className="sr-only peer" 
                     />
-                    <div className="w-12 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-900 peer-checked:after:bg-indigo-400 peer-checked:after:shadow-[0_0_10px_rgba(129,140,248,0.5)] shadow-inner"></div>
+                    <div className="w-12 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-300 peer-checked:after:bg-indigo-500 peer-checked:after:shadow-[0_0_10px_rgba(129,140,248,0.5)] shadow-inner"></div>
                   </label>
                 </div>
               </div>
             </div>
             
             {isAdmin && (
-              <div className="glass-panel rounded-xl border border-white/5 p-6 md:p-8">
-                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
+              <div className="glass-panel rounded-xl border border-zinc-200 p-6 md:p-8">
+                <h3 className="text-lg font-bold text-zinc-900 mb-6 flex items-center gap-3">
                   <div className="p-2 bg-indigo-600/20 rounded-lg text-indigo-400"><Play size={20} /></div>
                   数据导入 ETL
                 </h3>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm text-zinc-300">状态：{etlState.status}</div>
+                    <div className="text-sm text-zinc-700">状态：{etlState.status}</div>
                     <div className="text-xs text-zinc-500 mt-1">{etlState.current_step || '等待启动'}</div>
                   </div>
                   <button
@@ -328,7 +328,7 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                     <span>进度 {etlState.progress}%</span>
                     <span className="flex items-center gap-1"><Clock size={12} /> {etlState.last_run_at || '未运行'}</span>
                   </div>
-                  <div className="w-full h-2 bg-zinc-900/80 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full h-2 bg-zinc-200 rounded-full mt-2 overflow-hidden">
                     <div className="h-2 bg-indigo-500" style={{ width: `${etlState.progress}%` }}></div>
                   </div>
                 </div>
@@ -345,8 +345,8 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
             )}
 
             {isAdmin && (
-              <div className="glass-panel rounded-xl border border-white/5 p-6 md:p-8">
-                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
+              <div className="glass-panel rounded-xl border border-zinc-200 p-6 md:p-8">
+                <h3 className="text-lg font-bold text-zinc-900 mb-6 flex items-center gap-3">
                   <div className="p-2 bg-amber-600/20 rounded-lg text-amber-400"><Users size={20} /></div>
                   用户与权限管理
                 </h3>
@@ -355,31 +355,31 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                     value={userForm.username}
                     onChange={(e) => setUserForm({ ...userForm, username: e.target.value })}
                     placeholder="用户名"
-                    className="p-3 bg-black/40 border border-white/10 rounded-lg text-sm text-white outline-none"
+                    className="p-3 bg-white border border-zinc-200 rounded-lg text-sm text-zinc-700 outline-none"
                   />
                   <input
                     type="password"
                     value={userForm.password}
                     onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
                     placeholder="密码"
-                    className="p-3 bg-black/40 border border-white/10 rounded-lg text-sm text-white outline-none"
+                    className="p-3 bg-white border border-zinc-200 rounded-lg text-sm text-zinc-700 outline-none"
                   />
                   <input
                     value={userForm.full_name}
                     onChange={(e) => setUserForm({ ...userForm, full_name: e.target.value })}
                     placeholder="姓名"
-                    className="p-3 bg-black/40 border border-white/10 rounded-lg text-sm text-white outline-none"
+                    className="p-3 bg-white border border-zinc-200 rounded-lg text-sm text-zinc-700 outline-none"
                   />
                   <input
                     value={userForm.email}
                     onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
                     placeholder="邮箱"
-                    className="p-3 bg-black/40 border border-white/10 rounded-lg text-sm text-white outline-none"
+                    className="p-3 bg-white border border-zinc-200 rounded-lg text-sm text-zinc-700 outline-none"
                   />
                   <select
                     value={userForm.role}
                     onChange={(e) => setUserForm({ ...userForm, role: e.target.value as 'admin' | 'user' })}
-                    className="p-3 bg-black/40 border border-white/10 rounded-lg text-sm text-white outline-none md:col-span-2"
+                    className="p-3 bg-white border border-zinc-200 rounded-lg text-sm text-zinc-700 outline-none md:col-span-2"
                   >
                     <option value="user">普通用户</option>
                     <option value="admin">管理员</option>
@@ -395,9 +395,9 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                     users.map((user) => {
                       const isSelf = user.username === currentUser?.username;
                       return (
-                        <div key={user.username} className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-black/40 border border-white/10 rounded-lg text-xs">
+                        <div key={user.username} className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-white border border-zinc-200 rounded-lg text-xs">
                           <div>
-                            <div className="text-zinc-200 font-semibold">{user.username}</div>
+                            <div className="text-zinc-700 font-semibold">{user.username}</div>
                             <div className="text-zinc-500">{user.full_name || '未填写'} · {user.email || '未填写'}</div>
                           </div>
                           <div className="flex items-center gap-3">
@@ -405,7 +405,7 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                               value={user.role}
                               onChange={(e) => handleUpdateUser(user.username, { role: e.target.value as 'admin' | 'user' })}
                               disabled={isSelf}
-                              className="p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none disabled:opacity-50"
+                              className="p-2 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-700 outline-none disabled:opacity-50"
                             >
                               <option value="user">普通用户</option>
                               <option value="admin">管理员</option>
@@ -420,7 +420,7 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                             <button
                               onClick={() => handleDeleteUser(user.username)}
                               disabled={isSelf}
-                              className="px-3 py-2 rounded-lg text-xs font-semibold bg-zinc-800 text-zinc-300 hover:text-white disabled:opacity-50"
+                              className="px-3 py-2 rounded-lg text-xs font-semibold bg-zinc-100 text-zinc-700 hover:text-zinc-900 disabled:opacity-50"
                             >
                               删除
                             </button>
@@ -436,27 +436,27 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
 
         {/* Right Col */}
         <div className="space-y-8">
-            <div className="glass-panel rounded-xl border border-white/5 p-6">
+            <div className="glass-panel rounded-xl border border-zinc-200 p-6">
                 <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                     <Shield size={14} /> 连接状态
                 </h3>
                 <div className="space-y-4">
-                    <div className="flex justify-between items-center p-3 bg-zinc-900/50 rounded-lg border border-white/5">
-                        <span className="text-sm text-zinc-300">Neo4j 数据库</span>
+                    <div className="flex justify-between items-center p-3 bg-zinc-50 rounded-lg border border-zinc-200">
+                        <span className="text-sm text-zinc-700">Neo4j 数据库</span>
                         <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-400 uppercase">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_currentColor]"></div>
                             已连接
                         </div>
                     </div>
-                    <div className="flex justify-between items-center p-3 bg-zinc-900/50 rounded-lg border border-white/5">
-                        <span className="text-sm text-zinc-300">向量知识库</span>
+                    <div className="flex justify-between items-center p-3 bg-zinc-50 rounded-lg border border-zinc-200">
+                        <span className="text-sm text-zinc-700">向量知识库</span>
                         <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-400 uppercase">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_currentColor]"></div>
                             在线
                         </div>
                     </div>
-                    <div className="flex justify-between items-center p-3 bg-zinc-900/50 rounded-lg border border-white/5">
-                        <span className="text-sm text-zinc-300">Doubao API</span>
+                    <div className="flex justify-between items-center p-3 bg-zinc-50 rounded-lg border border-zinc-200">
+                        <span className="text-sm text-zinc-700">Doubao API</span>
                         <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-400 uppercase">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_currentColor]"></div>
                             活跃
@@ -465,7 +465,7 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                 </div>
             </div>
 
-            <div className="glass-panel rounded-xl border border-white/5 p-6 bg-gradient-to-br from-violet-900/10 to-transparent">
+            <div className="glass-panel rounded-xl border border-zinc-200 p-6 bg-gradient-to-br from-violet-200/20 to-transparent">
                 <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                     <Info size={14} /> 关于系统
                 </h3>
@@ -481,7 +481,7 @@ const Settings: React.FC<{ currentUser: UserAccount | null }> = ({ currentUser }
                       console.error(error);
                       showToast('日志导出失败', 'error');
                     }
-                  }} className="w-full py-2 bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-bold rounded-lg transition-colors border border-white/5">
+                  }} className="w-full py-2 bg-white hover:bg-zinc-100 text-zinc-700 text-xs font-bold rounded-lg transition-colors border border-zinc-200">
                     查看系统日志
                 </button>
             </div>

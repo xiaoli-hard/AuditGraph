@@ -15,10 +15,10 @@ import { login, register, fetchCurrentUser, clearAuthToken, getAuthToken } from 
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="flex items-center justify-center h-full text-zinc-500 flex-col gap-4 animate-fade-in">
-    <div className="p-6 rounded-full bg-white/5 border border-white/5">
-        <Activity size={48} className="opacity-20" />
+    <div className="p-6 rounded-full bg-violet-50 border border-violet-100">
+        <Activity size={48} className="opacity-40 text-violet-400" />
     </div>
-    <div className="text-xl font-medium tracking-tight text-zinc-300">{title}</div>
+    <div className="text-xl font-medium tracking-tight text-zinc-700">{title}</div>
     <div className="text-sm opacity-50 font-mono">状态：开发中</div>
   </div>
 );
@@ -90,22 +90,22 @@ const App: React.FC = () => {
   };
 
   const renderAuthScreen = () => (
-    <div className="flex items-center justify-center h-screen bg-[#050506] text-zinc-200 font-sans bg-grid">
-      <div className="w-full max-w-md glass-panel rounded-2xl p-8 border border-white/10">
+    <div className="flex items-center justify-center h-screen bg-white text-zinc-900 font-sans bg-grid">
+      <div className="w-full max-w-md bg-white/90 rounded-2xl p-8 border border-zinc-200 shadow-xl">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white tracking-tight">AuditGraph</h2>
-          <p className="text-zinc-500 text-sm mt-1">{authMode === 'login' ? '登录系统' : '创建新账号'}</p>
+          <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">AuditGraph</h2>
+          <p className="text-zinc-600 text-sm mt-1">{authMode === 'login' ? '登录系统' : '创建新账号'}</p>
         </div>
         <div className="space-y-4">
           <input
-            className="w-full p-3 bg-black/40 border border-white/10 rounded-lg text-sm text-white outline-none"
+            className="w-full p-3 bg-white border border-zinc-300 rounded-lg text-sm text-zinc-900 outline-none focus:border-violet-500"
             placeholder="用户名"
             value={authForm.username}
             onChange={(e) => setAuthForm({ ...authForm, username: e.target.value })}
           />
           <input
             type="password"
-            className="w-full p-3 bg-black/40 border border-white/10 rounded-lg text-sm text-white outline-none"
+            className="w-full p-3 bg-white border border-zinc-300 rounded-lg text-sm text-zinc-900 outline-none focus:border-violet-500"
             placeholder="密码"
             value={authForm.password}
             onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
@@ -113,13 +113,13 @@ const App: React.FC = () => {
           {authMode === 'register' && (
             <>
               <input
-                className="w-full p-3 bg-black/40 border border-white/10 rounded-lg text-sm text-white outline-none"
+                className="w-full p-3 bg-white border border-zinc-300 rounded-lg text-sm text-zinc-900 outline-none focus:border-violet-500"
                 placeholder="姓名"
                 value={authForm.full_name}
                 onChange={(e) => setAuthForm({ ...authForm, full_name: e.target.value })}
               />
               <input
-                className="w-full p-3 bg-black/40 border border-white/10 rounded-lg text-sm text-white outline-none"
+                className="w-full p-3 bg-white border border-zinc-300 rounded-lg text-sm text-zinc-900 outline-none focus:border-violet-500"
                 placeholder="邮箱"
                 value={authForm.email}
                 onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
@@ -135,7 +135,7 @@ const App: React.FC = () => {
           </button>
           <button
             onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-            className="w-full py-2 text-zinc-400 hover:text-white text-xs"
+            className="w-full py-2 text-zinc-500 hover:text-zinc-900 text-xs"
           >
             {authMode === 'login' ? '没有账号？去注册' : '已有账号？去登录'}
           </button>
@@ -169,8 +169,8 @@ const App: React.FC = () => {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#050506] text-zinc-200 font-sans bg-grid">
-        <div className="text-sm text-zinc-500">加载中...</div>
+      <div className="flex items-center justify-center h-screen bg-white text-zinc-900 font-sans bg-grid">
+        <div className="text-sm text-zinc-600">加载中...</div>
       </div>
     );
   }
@@ -181,7 +181,7 @@ const App: React.FC = () => {
 
   return (
     <ToastProvider>
-      <div className="flex flex-col h-screen bg-[#050506] text-zinc-200 font-sans overflow-hidden bg-grid">
+      <div className="flex flex-col h-screen bg-white text-zinc-900 font-sans overflow-hidden bg-grid">
         {/* Top Navigation Bar */}
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} currentUser={currentUser} onLogout={handleLogout} />
         

@@ -75,8 +75,8 @@ const ReportView: React.FC = () => {
     <div className="p-6 lg:p-10 space-y-8 animate-fade-in max-w-[1920px] mx-auto w-full">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-bold text-white tracking-tight">审计报告</h2>
-          <p className="text-zinc-400 mt-1 text-sm">自动化合规摘要与执行简报</p>
+          <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">审计报告</h2>
+          <p className="text-zinc-500 mt-1 text-sm">自动化合规摘要与执行简报</p>
         </div>
         <button onClick={handleCreateReport} className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 text-white rounded-lg hover:bg-violet-500 shadow-[0_0_20px_rgba(124,58,237,0.3)] transition-all text-sm font-bold tracking-wide">
           {creating ? <Loader size={16} className="animate-spin" /> : <Plus size={16} />}
@@ -86,12 +86,12 @@ const ReportView: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {reports.map((report) => (
-          <div key={report.id} className="glass-panel rounded-xl p-6 flex flex-col border border-white/5 hover:border-violet-500/30 transition-all group relative overflow-hidden">
+          <div key={report.id} className="glass-panel rounded-xl p-6 flex flex-col border border-zinc-200 hover:border-violet-500/30 transition-all group relative overflow-hidden">
              {/* Top glow */}
-             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:via-violet-500/50 transition-all"></div>
+             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-zinc-200 to-transparent group-hover:via-violet-500/50 transition-all"></div>
              
              <div className="flex justify-between items-start mb-5">
-               <div className="p-3 bg-zinc-900 rounded-lg text-zinc-500 border border-white/5 group-hover:text-violet-400 group-hover:border-violet-500/20 transition-colors">
+               <div className="p-3 bg-zinc-100 rounded-lg text-zinc-500 border border-zinc-200 group-hover:text-violet-500 group-hover:border-violet-500/20 transition-colors">
                  <FileText size={24} />
                </div>
                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
@@ -103,16 +103,16 @@ const ReportView: React.FC = () => {
                </span>
              </div>
              
-             <h3 className="text-lg font-bold text-zinc-100 mb-2 leading-tight group-hover:text-white transition-colors">{report.title}</h3>
+             <h3 className="text-lg font-bold text-zinc-800 mb-2 leading-tight group-hover:text-zinc-900 transition-colors">{report.title}</h3>
              <p className="text-xs text-zinc-500 mb-6 flex-1 leading-relaxed">{report.summary}</p>
              
-             <div className="border-t border-white/5 pt-4 mt-auto">
+             <div className="border-t border-zinc-200 pt-4 mt-auto">
                <div className="flex justify-between text-xs text-zinc-600 mb-4 font-mono">
                  <span>{report.date}</span>
                  <span className={report.findingsCount > 0 ? "text-rose-400" : "text-emerald-500"}>{report.findingsCount} 个发现项</span>
                </div>
                <div className="flex gap-2">
-                  <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 py-2 border border-zinc-800 rounded-lg text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+                  <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 py-2 border border-zinc-200 rounded-lg text-xs font-bold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition-colors">
                    <Printer size={14} /> 打印
                  </button>
                   <button onClick={() => handleDownloadReport(report.id)} className="flex-1 flex items-center justify-center gap-2 py-2 bg-violet-600/10 border border-violet-500/20 text-violet-300 rounded-lg text-xs font-bold hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-all">
@@ -124,44 +124,44 @@ const ReportView: React.FC = () => {
         ))}
 
         {/* Create New Placeholder */}
-        <div onClick={() => setShowCustomModal(true)} className="border border-dashed border-zinc-800 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-violet-500/50 hover:bg-violet-600/5 transition-all group min-h-[300px]">
-           <div className="w-14 h-14 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600 mb-4 group-hover:scale-110 group-hover:text-violet-400 group-hover:border-violet-500/30 transition-all shadow-lg">
+        <div onClick={() => setShowCustomModal(true)} className="border border-dashed border-zinc-300 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-violet-500/50 hover:bg-violet-600/5 transition-all group min-h-[300px]">
+           <div className="w-14 h-14 rounded-full bg-zinc-100 border border-zinc-300 flex items-center justify-center text-zinc-500 mb-4 group-hover:scale-110 group-hover:text-violet-500 group-hover:border-violet-500/30 transition-all shadow-lg">
              <Plus size={24} />
            </div>
-           <h3 className="font-bold text-zinc-300 group-hover:text-white transition-colors">自定义报告</h3>
+           <h3 className="font-bold text-zinc-700 group-hover:text-zinc-900 transition-colors">自定义报告</h3>
            <p className="text-xs text-zinc-600 mt-2 max-w-[200px]">配置特定控制项、日期范围和风险域生成 AI 报告。</p>
         </div>
       </div>
       {showCustomModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-xl bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-6 space-y-4">
+        <div className="fixed inset-0 bg-zinc-900/35 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-xl bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">自定义报告</h3>
-              <button onClick={() => setShowCustomModal(false)} className="text-zinc-500 hover:text-white transition-colors">×</button>
+              <h3 className="text-lg font-bold text-zinc-900">自定义报告</h3>
+              <button onClick={() => setShowCustomModal(false)} className="text-zinc-500 hover:text-zinc-900 transition-colors">×</button>
             </div>
             <div className="space-y-3">
               <input
                 value={customReport.title}
                 onChange={(e) => setCustomReport((prev) => ({ ...prev, title: e.target.value }))}
                 placeholder="报告标题"
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500/50"
+                className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:border-violet-500/50"
               />
               <textarea
                 value={customReport.summary}
                 onChange={(e) => setCustomReport((prev) => ({ ...prev, summary: e.target.value }))}
                 placeholder="报告摘要（可选）"
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500/50 h-24 resize-none"
+                className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:border-violet-500/50 h-24 resize-none"
               />
               <input
                 type="number"
                 value={customReport.findingsCount}
                 onChange={(e) => setCustomReport((prev) => ({ ...prev, findingsCount: Number(e.target.value) }))}
                 placeholder="发现项数量"
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500/50"
+                className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:border-violet-500/50"
               />
             </div>
             <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setShowCustomModal(false)} className="px-4 py-2 rounded-lg border border-white/10 text-zinc-300 text-sm hover:bg-white/5">取消</button>
+              <button onClick={() => setShowCustomModal(false)} className="px-4 py-2 rounded-lg border border-zinc-200 text-zinc-700 text-sm hover:bg-zinc-100">取消</button>
               <button onClick={handleCustomReport} className="px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-bold hover:bg-violet-500">生成报告</button>
             </div>
           </div>

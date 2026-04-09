@@ -141,7 +141,7 @@ const GraphView: React.FC = () => {
     // Node Circles with Glow
     node.append("circle")
       .attr("r", d => d.val + 10)
-      .attr("fill", "#09090b") // Black center
+      .attr("fill", "#ffffff")
       .attr("stroke", d => {
         if (d.group === 1) return "#8b5cf6"; // Violet
         if (d.group === 2) return "#3b82f6"; // Blue
@@ -172,9 +172,9 @@ const GraphView: React.FC = () => {
       .attr("y", 5)
       .attr("font-size", "12px")
       .attr("font-family", "Inter, sans-serif")
-      .attr("fill", "#e4e4e7") // Zinc-200
+      .attr("fill", "#18181b") // Zinc-900
       .attr("font-weight", "500")
-      .style("text-shadow", "0 1px 4px rgba(0,0,0,0.8)"); // readable on dark
+      .style("text-shadow", "0 1px 2px rgba(255,255,255,0.9)");
 
     // Link labels
     const linkText = container.append("g")
@@ -259,10 +259,10 @@ const GraphView: React.FC = () => {
   };
 
   return (
-    <div ref={containerRef} className="h-full flex flex-col bg-black relative overflow-hidden">
+    <div ref={containerRef} className="h-full flex flex-col bg-white relative overflow-hidden">
       {/* Background Grid */}
       <div className="absolute inset-0 z-0 opacity-20" style={{ 
-          backgroundImage: 'radial-gradient(#3f3f46 1px, transparent 1px)', 
+          backgroundImage: 'radial-gradient(#a1a1aa 1px, transparent 1px)', 
           backgroundSize: '32px 32px' 
       }}></div>
 
@@ -273,7 +273,7 @@ const GraphView: React.FC = () => {
              <Share2 size={20} />
            </div>
            <div>
-             <h2 className="text-lg font-bold text-white tracking-tight">本体可视化视图</h2>
+             <h2 className="text-lg font-bold text-zinc-900 tracking-tight">本体可视化视图</h2>
              <div className="flex gap-2 text-[10px] text-zinc-400 font-mono uppercase">
                <span>节点数: 84</span>
                <span className="text-zinc-600">|</span>
@@ -287,19 +287,19 @@ const GraphView: React.FC = () => {
         <div className="flex gap-2 pointer-events-auto relative">
           <button
             onClick={() => setShowFilters((prev) => !prev)}
-            className="flex items-center gap-2 px-3 py-2 bg-black/50 backdrop-blur border border-white/10 text-zinc-300 rounded-lg text-sm hover:bg-white/10 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-white backdrop-blur border border-zinc-200 text-zinc-700 rounded-lg text-sm hover:bg-zinc-100 transition-colors"
           >
             <Filter size={16} /> <span className="hidden md:inline">筛选</span>
           </button>
           {showFilters && (
-            <div className="absolute right-0 top-12 w-48 glass-panel rounded-xl p-3 border border-white/10">
+            <div className="absolute right-0 top-12 w-48 glass-panel rounded-xl p-3 border border-zinc-200">
               {[
                 { group: 1, label: "标准条款", color: "text-violet-400" },
                 { group: 2, label: "控制项", color: "text-blue-400" },
                 { group: 3, label: "审计证据", color: "text-emerald-400" },
                 { group: 4, label: "安全风险", color: "text-rose-400" }
               ].map((item) => (
-                <label key={item.group} className="flex items-center justify-between py-1 text-xs text-zinc-300 cursor-pointer">
+                <label key={item.group} className="flex items-center justify-between py-1 text-xs text-zinc-700 cursor-pointer">
                   <span className={`flex items-center gap-2 ${item.color}`}>
                     <span className="w-2 h-2 rounded-full bg-current"></span>
                     {item.label}
@@ -345,20 +345,20 @@ const GraphView: React.FC = () => {
         
         {/* HUD Controls Bottom Left */}
         <div className="absolute bottom-6 left-6 flex flex-col gap-2 z-10">
-          <button onClick={handleZoomIn} className="p-3 bg-zinc-900/90 border border-white/10 rounded-lg text-zinc-400 hover:text-white hover:border-violet-500/50 transition-all">
+          <button onClick={handleZoomIn} className="p-3 bg-white border border-zinc-200 rounded-lg text-zinc-500 hover:text-zinc-900 hover:border-violet-500/50 transition-all">
             <ZoomIn size={20} />
           </button>
-          <button onClick={handleZoomOut} className="p-3 bg-zinc-900/90 border border-white/10 rounded-lg text-zinc-400 hover:text-white hover:border-violet-500/50 transition-all">
+          <button onClick={handleZoomOut} className="p-3 bg-white border border-zinc-200 rounded-lg text-zinc-500 hover:text-zinc-900 hover:border-violet-500/50 transition-all">
              <ZoomOut size={20} />
           </button>
-          <button onClick={handleToggleFullscreen} className={`p-3 bg-zinc-900/90 border rounded-lg transition-all mt-2 ${isFullscreen ? 'border-violet-500/50 text-violet-400' : 'border-white/10 text-zinc-400 hover:text-white hover:border-violet-500/50'}`}>
+          <button onClick={handleToggleFullscreen} className={`p-3 bg-white border rounded-lg transition-all mt-2 ${isFullscreen ? 'border-violet-500/50 text-violet-500' : 'border-zinc-200 text-zinc-500 hover:text-zinc-900 hover:border-violet-500/50'}`}>
              <Maximize2 size={20} />
           </button>
         </div>
 
          {/* Legend HUD Bottom Right */}
         <div className="absolute bottom-6 right-6 glass-panel p-4 rounded-xl z-10 w-48">
-          <h4 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-3 border-b border-white/5 pb-2">节点类型</h4>
+          <h4 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-3 border-b border-zinc-200 pb-2">节点类型</h4>
           <div className="space-y-2">
             {[
               { color: 'bg-violet-500', label: '标准条款' },
@@ -367,7 +367,7 @@ const GraphView: React.FC = () => {
               { color: 'bg-rose-500', label: '安全风险' }
             ].map((item) => (
                <div key={item.label} className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-zinc-300">{item.label}</span>
+                  <span className="text-xs font-medium text-zinc-700">{item.label}</span>
                   <div className={`w-2 h-2 rounded-full ${item.color} shadow-[0_0_8px_currentColor]`}></div>
                </div>
             ))}

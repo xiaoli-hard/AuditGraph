@@ -113,7 +113,7 @@ const AuditChat: React.FC = () => {
       {/* Left: Chat Console */}
       <div className="flex-1 flex flex-col glass-panel rounded-xl overflow-hidden shadow-2xl">
         {/* Console Header */}
-        <div className="h-12 bg-black/40 border-b border-white/5 flex items-center px-4 justify-between">
+        <div className="h-12 bg-zinc-50 border-b border-zinc-200 flex items-center px-4 justify-between">
           <div className="flex items-center gap-2 text-zinc-400">
             <Terminal size={14} />
             <span className="text-xs font-mono font-bold tracking-wider">AUDIT_AGENT_V2.0</span>
@@ -126,7 +126,7 @@ const AuditChat: React.FC = () => {
         </div>
 
         {/* Message Stream */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 font-mono text-sm custom-scrollbar bg-black/20">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 font-mono text-sm custom-scrollbar bg-white/70">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
               <div className={`flex items-center gap-2 mb-1 opacity-50 text-[10px]`}>
@@ -137,8 +137,8 @@ const AuditChat: React.FC = () => {
               </div>
               <div className={`max-w-[85%] p-4 rounded-lg border ${
                 msg.role === 'user' 
-                  ? 'bg-violet-500/10 border-violet-500/20 text-zinc-200' 
-                  : 'bg-zinc-900 border-zinc-800 text-emerald-400/90 shadow-lg'
+                  ? 'bg-violet-500/10 border-violet-500/20 text-zinc-700' 
+                  : 'bg-zinc-100 border-zinc-200 text-emerald-700 shadow-sm'
               }`}>
                 <pre className="whitespace-pre-wrap font-mono leading-relaxed">{msg.content}</pre>
               </div>
@@ -148,8 +148,8 @@ const AuditChat: React.FC = () => {
         </div>
 
         {/* Input Line */}
-        <div className="p-4 bg-zinc-900/50 border-t border-white/5">
-           <div className="flex items-center gap-3 bg-black border border-zinc-800 rounded-lg p-3 focus-within:border-violet-500/50 focus-within:ring-1 focus-within:ring-violet-500/20 transition-all">
+        <div className="p-4 bg-zinc-50 border-t border-zinc-200">
+           <div className="flex items-center gap-3 bg-white border border-zinc-200 rounded-lg p-3 focus-within:border-violet-500/50 focus-within:ring-1 focus-within:ring-violet-500/20 transition-all">
              <ChevronRight className="text-violet-500 blink" size={18} />
              <input 
                 value={input}
@@ -157,13 +157,13 @@ const AuditChat: React.FC = () => {
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="输入审计指令或查询问题..."
                 disabled={isLoading}
-                className="flex-1 bg-transparent border-none outline-none text-zinc-200 font-mono text-sm placeholder:text-zinc-700"
+                className="flex-1 bg-transparent border-none outline-none text-zinc-700 font-mono text-sm placeholder:text-zinc-400"
                 autoFocus
              />
              <button 
                 onClick={handleSend}
                 disabled={isLoading || !input.trim()}
-                className={`p-1.5 rounded transition-colors ${isLoading ? 'text-zinc-600' : 'text-zinc-400 hover:text-white'}`}
+                className={`p-1.5 rounded transition-colors ${isLoading ? 'text-zinc-400' : 'text-zinc-500 hover:text-zinc-900'}`}
              >
                {isLoading ? <Sparkles size={16} className="animate-spin" /> : <Send size={16} />}
              </button>
@@ -172,10 +172,10 @@ const AuditChat: React.FC = () => {
       </div>
 
       {/* Right: Execution Trace (Visible on large screens) */}
-      <div className="w-80 hidden lg:flex flex-col glass-panel rounded-xl overflow-hidden border-l border-white/5">
-        <div className="h-10 bg-zinc-900/80 border-b border-white/5 flex items-center px-4 gap-2">
+      <div className="w-80 hidden lg:flex flex-col glass-panel rounded-xl overflow-hidden border-l border-zinc-200">
+        <div className="h-10 bg-zinc-50 border-b border-zinc-200 flex items-center px-4 gap-2">
            <Cpu size={14} className="text-violet-400" />
-           <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">系统追踪</span>
+           <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">系统追踪</span>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-3 font-mono text-xs custom-scrollbar">
            {logs.length === 0 && !isLoading && (
@@ -185,7 +185,7 @@ const AuditChat: React.FC = () => {
              <div key={log.id} className="flex gap-2 animate-fade-in">
                <span className="text-zinc-600 flex-shrink-0">[{log.timestamp}]</span>
                <div className="break-all">
-                 {log.type === 'info' && <span className="text-zinc-400">{log.content}</span>}
+                 {log.type === 'info' && <span className="text-zinc-600">{log.content}</span>}
                  {log.type === 'process' && <span className="text-violet-400 flex items-center gap-1"><Activity size={8} className="animate-spin" /> {log.content}</span>}
                  {log.type === 'data' && <span className="text-amber-500">{log.content}</span>}
                  {log.type === 'success' && <span className="text-emerald-500">{log.content}</span>}
@@ -196,9 +196,9 @@ const AuditChat: React.FC = () => {
         </div>
         
         {/* Agent Config Summary */}
-        <div className="p-3 bg-zinc-950 border-t border-white/5 text-[10px] text-zinc-500 space-y-1">
-           <div className="flex justify-between"><span>模型:</span> <span className="text-zinc-300">DouBao-1.6</span></div>
-           <div className="flex justify-between"><span>温度:</span> <span className="text-zinc-300">0.2</span></div>
+        <div className="p-3 bg-zinc-50 border-t border-zinc-200 text-[10px] text-zinc-500 space-y-1">
+           <div className="flex justify-between"><span>模型:</span> <span className="text-zinc-700">DouBao-1.6</span></div>
+           <div className="flex justify-between"><span>温度:</span> <span className="text-zinc-700">0.2</span></div>
            <div className="flex justify-between"><span>GRAPH_RAG:</span> <span className="text-emerald-500">已启用</span></div>
         </div>
       </div>
